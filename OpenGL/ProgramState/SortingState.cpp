@@ -28,8 +28,7 @@ void SortingState::render(RenderWindow& renderWindow, ShaderManager& shaderManag
 
 	if (!barChart.getVerticesToSwap().empty())
 	{
-		shaderManager.updateVertexBuffer(sortAlgorithm->getFirstSwapIndex(), sortAlgorithm->getSecondSwapIndex(), barChart.getVerticesToSwap());
-	//	shaderManager.updateVertexBuffer(barChart.getSwapIndex() - bufferIndexOffset, barChart.getVerticesToSwap());
+		shaderManager.updateVertexBuffer(sortAlgorithm->getSwapIndices(), barChart.getVerticesToSwap());
 	}
 
 	renderWindow.updateWindow(shaderManager, barChart);

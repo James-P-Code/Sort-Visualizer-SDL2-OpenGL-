@@ -7,7 +7,6 @@ class ProgramManager final
 {
 public:
 	ProgramManager();
-	void updateWindow();
 	void update();
 	void render();
 	void handleEvent(SDL_Event& event);

@@ -77,7 +77,7 @@ void ShaderManager::createBuffers(BarChart& barChart)
 	glVertexAttribPointer(0, floatsPerVertex, GL_FLOAT, GL_FALSE, floatsPerVertex * sizeof(GLfloat), (void*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
-	glBufferData(GL_ARRAY_BUFFER, barChart.getVertexColors().size() * sizeof(GLfloat), barChart.getVertexColors().data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, barChart.getVertexColors().size() * sizeof(GLfloat), barChart.getVertexColors().data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(1, floatsPerColor, GL_FLOAT, GL_FALSE, floatsPerColor * sizeof(GLfloat), (void*)0);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
@@ -97,25 +97,17 @@ const GLsizei& ShaderManager::getVerticesCount() const
 	return verticesToDraw;
 }
 
-void ShaderManager::updateVertexBuffer(const int firstSwapIndex, const int secondSwapIndex, const std::vector<GLfloat>& swaps) const
+// update the vertex buffer object with the vertices of 2 swapped rectangles.  the indices are where the swapped vertices will be placed in the
+// vertex buffer.  the vector contains the updated vertices (vertices that have already been swapped to their new positions)
+void ShaderManager::updateVertexBuffer(const std::pair<size_t, size_t>& indexOfSwap, const std::vector<GLfloat>& verticesToSwap) const
 {
-	GLfloat firstSwap[8], secondSwap[8];
+	constexpr int floatsPerRectangle = 8;
 
-	for (int i = 0; i < 16; ++i)
-	{
-		if (i < 8)
-		{
-			firstSwap[i] = swaps.at(i);
-		}
-		else
-		{
-			secondSwap[i - 8] = swaps.at(i);
-		}
-	}
+	std::vector<GLfloat> firstSwap(verticesToSwap.begin(), verticesToSwap.begin() + floatsPerRectangle);
+	std::vector<GLfloat> secondSwap(verticesToSwap.begin() + floatsPerRectangle, verticesToSwap.end());
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
-	glBufferSubData(GL_ARRAY_BUFFER, firstSwapIndex * sizeof(GLfloat), 8 * sizeof(GLfloat), &firstSwap);
-	glBufferSubData(GL_ARRAY_BUFFER, secondSwapIndex * sizeof(GLfloat), 8 * sizeof(GLfloat), &secondSwap);
-	//glBufferSubData(GL_ARRAY_BUFFER, index * sizeof(GLfloat), swaps.size() * sizeof(GLfloat), swaps.data());
+	glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.first * sizeof(GLfloat), floatsPerRectangle * sizeof(GLfloat), firstSwap.data());
+	glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.second * sizeof(GLfloat), floatsPerRectangle * sizeof(GLfloat), secondSwap.data());
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

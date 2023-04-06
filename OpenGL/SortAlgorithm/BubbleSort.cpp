@@ -5,7 +5,7 @@ BubbleSort::BubbleSort(BarChart& barChart) :  SortAlgorithm(barChart) {}
 void BubbleSort::sort()
 {
     constexpr int numberOfRectangles = 100;
-    constexpr size_t floatsPerRectangle = 8, topLeftOffset = 1;
+    constexpr size_t floatsPerRectangle = 8, currentRectangleTopLeftOffset = 1, nextRectangleTopLeftOffset = 7;
     swapOccurred = false;
 
     if (sortIterator < numberOfRectangles)
@@ -15,10 +15,10 @@ void BubbleSort::sort()
             if (rectangleVertices.at(currentVertex) > rectangleVertices.at(currentVertex + floatsPerRectangle))
             {
                 swapOccurred = true;
-          //      barChart.swapVertices(currentVertex - topLeftOffset);
-                barChart.swapVerticesTest(currentVertex - topLeftOffset, currentVertex + 7);
+                swapIndices.first = currentVertex - currentRectangleTopLeftOffset;
+                swapIndices.second = currentVertex + nextRectangleTopLeftOffset;
+                barChart.swapVertices(swapIndices);
             }
-            firstSwapIndex = currentVertex - 1, secondSwapIndex = currentVertex + 7;
             currentVertex += floatsPerRectangle;
         }
         else
@@ -28,8 +28,7 @@ void BubbleSort::sort()
             swapOccurred = false;
         }
     }
-    
-  //  barChart.setSwapIndex(currentVertex);
+
     rectangleToHighlight = std::floor((currentVertex - 1) / 2);
     if (sortIterator == numberOfRectangles)
     {

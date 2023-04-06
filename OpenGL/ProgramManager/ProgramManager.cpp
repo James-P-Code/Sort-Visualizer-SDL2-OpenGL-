@@ -5,11 +5,6 @@ ProgramManager::ProgramManager() : currentState(std::make_unique<UnsortedState>(
 	shaderManager.loadShader("myshader.vert", "myshader.frag", barChart);
 }
 
-void ProgramManager::updateWindow()
-{
-	renderWindow.updateWindow(shaderManager, barChart);
-}
-
 void ProgramManager::update()
 {
 	currentState->update(barChart);

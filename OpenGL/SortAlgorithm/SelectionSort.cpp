@@ -25,8 +25,9 @@ void SelectionSort::sort()
 		{
 			if (indexOfMinimum != 1)
 			{
-				barChart.swapVerticesTest(indexOfMinimum - 1, sortIterator * floatsPerRectangles);
-				firstSwapIndex = indexOfMinimum - 1, secondSwapIndex = sortIterator * floatsPerRectangles;
+				swapIndices.first = indexOfMinimum - 1;
+				swapIndices.second = sortIterator * floatsPerRectangles;
+				barChart.swapVertices(swapIndices);
 			}
 			currentRectangle = 1;
 			++sortIterator;

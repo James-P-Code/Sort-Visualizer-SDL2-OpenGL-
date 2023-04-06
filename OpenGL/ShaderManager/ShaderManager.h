@@ -18,7 +18,7 @@ public:
 	const GLuint& getProgramID() const;
 	const GLuint& getVertexArrayObject() const;
 	const GLsizei& getVerticesCount() const;
-	void updateVertexBuffer(const int, const int, const std::vector<GLfloat>&) const;
+	void updateVertexBuffer(const std::pair<size_t, size_t>&, const std::vector<GLfloat>&) const;
 
 private:
 	GLuint programID = 0, vertexVBO = 0, colorVBO = 0, vertexArrayObject = 0, elementBufferObject = 0;

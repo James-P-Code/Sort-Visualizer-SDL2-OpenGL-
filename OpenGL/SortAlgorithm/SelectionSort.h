@@ -2,7 +2,7 @@
 #include "SortAlgorithm.h"
 #include <iostream>
 
-class SelectionSort :public SortAlgorithm
+class SelectionSort final : public SortAlgorithm
 {
 public:
 	SelectionSort(BarChart& barChart);
