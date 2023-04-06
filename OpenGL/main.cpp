@@ -22,8 +22,11 @@ int main(int argc, char* argv[])
 			{
 				quit = true;
 			}
+			programManager.handleEvent(event);
 		}
-		programManager.updateWindow();
+		programManager.update();
+		programManager.render();
+		programManager.changeState();
 
 		frameEnd = SDL_GetTicks() - frameStart;
 

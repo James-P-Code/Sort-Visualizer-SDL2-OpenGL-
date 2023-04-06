@@ -44,6 +44,7 @@ BarChart::BarChart()
         rectangleVertices.push_back(xPosition); // bottom left x
         rectangleVertices.push_back(windowBottomCoordinate); // bottom left y
 
+        // RGB color values for each corner vertex
         vertexColors.push_back(topLeftColorR);
         vertexColors.push_back(topLeftColorG);
         vertexColors.push_back(topLeftColorB);
@@ -90,56 +91,12 @@ const std::vector<GLushort>& BarChart::getIndices() const
     return vertexIndices;
 }
 
-// normalize a number to be within the range of the OpenGL render coordinates (-1 to 1)
-const GLfloat BarChart::normalize(const float& numberToNormalize) const
+const std::vector<GLfloat>& BarChart::getVerticesToSwap() const
 {
-    constexpr float minRange = 0.f;
-    constexpr float maxRange = 100.f;
-    constexpr float minBarHeight = -0.97f;
-    constexpr float maxBarHeight = 1.0f;
-
-    return (numberToNormalize - minRange) / (maxRange - minRange) * (maxBarHeight - minBarHeight) + minBarHeight;
+    return verticesToSwap;
 }
 
-const std::vector<GLfloat>& BarChart::getSwap() const
-{
-    return swapVector;
-}
-
-void BarChart::sort()
-{
-    constexpr int numberOfRectangles = 100;
-    constexpr size_t floatsPerRectangle = 8, topLeftOffset = 1;
-    swapOccurred = false;
-
-    if (sortIterator < numberOfRectangles)
-    {
-        if (currentVertex < (numberOfRectangles * floatsPerRectangle) - (sortIterator * floatsPerRectangle) - floatsPerRectangle)
-        {
-            if (rectangleVertices.at(currentVertex) > rectangleVertices.at(currentVertex + floatsPerRectangle))
-            {
-                swapOccurred = true;
-                fillSwapVector(currentVertex - topLeftOffset);
-            }
-            currentVertex += floatsPerRectangle;
-        }
-        else
-        {
-            currentVertex = 1;
-            sortIterator++;
-            swapOccurred = false;
-        }
-
-     //   setRectanglesToHighlight(currentRectangle, greenHighlightColor);
-    }
-
-    if (sortIterator == numberOfRectangles)
-    {
-   //     sortedStatus = true;
-    }
-}
-
-void BarChart::fillSwapVector(const size_t startingIndex)
+void BarChart::swapVertices(const size_t startingIndex)
 {
     /* This function gets the data needed to update the vertex buffer.  Essentially we are swapping the vertices of 2 rectangles, and
     *  each rectangle has 8 floats that represent the x and y coordinates of each corner.  4 corners * 2 floats per corner = 8.
@@ -150,34 +107,92 @@ void BarChart::fillSwapVector(const size_t startingIndex)
     constexpr int floatsPerRectange = 8;
     constexpr size_t currentRectangleTopLeftYPosition = 1, currentRectangleTopRightYPosition = 3;
     constexpr size_t nextRectangleTopLeftYPosition = 9, nextRectangleTopRightYPosition = 11;
-    swapVector.clear();
 
     // we aren't swapping any x coordinates so we can fill the swap vector with the all the data of the current and next rectangle before we swap the y coordinates
     for (int i = startingIndex; i < startingIndex + (floatsPerRectange * 2); ++i)
-        swapVector.push_back(rectangleVertices.at(i));
+    {
+        verticesToSwap.push_back(rectangleVertices.at(i));
+    }
 
     // because the top left and top right corners share the same y value we only need 1 temporary height value for the swap
     GLfloat tempHeight = rectangleVertices.at(startingIndex + currentRectangleTopLeftYPosition);
 
-    swapVector.at(currentRectangleTopLeftYPosition) = rectangleVertices.at(startingIndex + nextRectangleTopLeftYPosition);
-    swapVector.at(currentRectangleTopRightYPosition) = rectangleVertices.at(startingIndex + nextRectangleTopLeftYPosition);
-
-    swapVector.at(nextRectangleTopLeftYPosition) = rectangleVertices.at(startingIndex + currentRectangleTopLeftYPosition);
-    swapVector.at(nextRectangleTopRightYPosition) = rectangleVertices.at(startingIndex + currentRectangleTopLeftYPosition);
+    verticesToSwap.at(currentRectangleTopLeftYPosition) = rectangleVertices.at(startingIndex + nextRectangleTopLeftYPosition);
+    verticesToSwap.at(currentRectangleTopRightYPosition) = rectangleVertices.at(startingIndex + nextRectangleTopLeftYPosition);
+    verticesToSwap.at(nextRectangleTopLeftYPosition) = rectangleVertices.at(startingIndex + currentRectangleTopLeftYPosition);
+    verticesToSwap.at(nextRectangleTopRightYPosition) = rectangleVertices.at(startingIndex + currentRectangleTopLeftYPosition);
 
     rectangleVertices.at(startingIndex + currentRectangleTopLeftYPosition) = rectangleVertices.at(startingIndex + nextRectangleTopLeftYPosition);
     rectangleVertices.at(startingIndex + currentRectangleTopRightYPosition) = rectangleVertices.at(startingIndex + nextRectangleTopRightYPosition);
-
     rectangleVertices.at(startingIndex + nextRectangleTopLeftYPosition) = tempHeight;
     rectangleVertices.at(startingIndex + nextRectangleTopRightYPosition) = tempHeight;
 }
 
-void BarChart::clearSwaps()
+void BarChart::swapVerticesTest(const size_t indexOfFirst, const size_t indexOfSecond)
 {
-    swapVector.clear();
+    /* This function gets the data needed to update the vertex buffer.  Essentially we are swapping the vertices of 2 rectangles, and
+    *  each rectangle has 8 floats that represent the x and y coordinates of each corner.  4 corners * 2 floats per corner = 8.
+    *  The first float (which we can think of as index 0, or the startingIndex parameter) is the x coordinate of the top left corner
+    *  of the rectangle.  This means that index 1 is the y coordinate of the that same top left corner.  Every corner follows this pattern
+    *  of x, y.  Thus the top left y coordinate of the next rectangle (the next rectangle being the one we are swapping with) is at
+    *  index 9 (or 1 + 8).  This pattern determines the values that are swapped within this function      */
+    constexpr int floatsPerRectange = 8;
+    constexpr size_t topLeftYOffset = 1, topRightYOffset = 3;
+    constexpr size_t currentRectangleTopLeftYPosition = 1, currentRectangleTopRightYPosition = 3;
+    constexpr size_t nextRectangleTopLeftYPosition = 9, nextRectangleTopRightYPosition = 11;
+    size_t firstSet = indexOfFirst, secondSet = indexOfSecond;
+
+    // we aren't swapping any x coordinates so we can fill the swap vector with the all the data of the current and next rectangle before we swap the y coordinates
+    for (int i = 0; i < floatsPerRectange * 2; ++i)
+    {
+        if (i < floatsPerRectange)
+        {
+            verticesToSwap.push_back(rectangleVertices.at(firstSet));
+            ++firstSet;
+        }
+        else
+        {
+            verticesToSwap.push_back(rectangleVertices.at(secondSet));
+            ++secondSet;
+        }
+    }
+
+    // because the top left and top right corners share the same y value we only need 1 temporary height value for the swap
+    GLfloat tempHeight = rectangleVertices.at(indexOfFirst + currentRectangleTopLeftYPosition);
+
+    verticesToSwap.at(currentRectangleTopLeftYPosition) = rectangleVertices.at(indexOfSecond + topLeftYOffset);
+    verticesToSwap.at(currentRectangleTopRightYPosition) = rectangleVertices.at(indexOfSecond + topRightYOffset);
+    verticesToSwap.at(nextRectangleTopLeftYPosition) = rectangleVertices.at(indexOfFirst + topLeftYOffset);
+    verticesToSwap.at(nextRectangleTopRightYPosition) = rectangleVertices.at(indexOfFirst + topRightYOffset);
+
+    rectangleVertices.at(indexOfFirst + topLeftYOffset) = rectangleVertices.at(indexOfSecond + topLeftYOffset);
+    rectangleVertices.at(indexOfFirst + topRightYOffset) = rectangleVertices.at(indexOfSecond + topRightYOffset);
+    rectangleVertices.at(indexOfSecond + topLeftYOffset) = tempHeight;
+    rectangleVertices.at(indexOfSecond + topRightYOffset) = tempHeight;
 }
 
-const int BarChart::getCurrent() const
+void BarChart::clearSwaps()
 {
-    return currentVertex;
+    verticesToSwap.clear();
+}
+
+void BarChart::setSwapIndex(const size_t swapIndex)
+{
+    this->swapIndex = swapIndex;
+}
+
+const size_t BarChart::getSwapIndex() const
+{
+    return swapIndex;
+}
+
+// normalize a number to be within the range of the OpenGL render coordinates (-1 to 1)
+const GLfloat BarChart::normalize(const float& numberToNormalize) const
+{
+    constexpr float minRange = 0.f;
+    constexpr float maxRange = 100.f;
+    constexpr float minBarHeight = -0.97f;
+    constexpr float maxBarHeight = 1.0f;
+
+    return (numberToNormalize - minRange) / (maxRange - minRange) * (maxBarHeight - minBarHeight) + minBarHeight;
 }

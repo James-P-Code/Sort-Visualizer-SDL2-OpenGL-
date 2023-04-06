@@ -1,6 +1,6 @@
 #include "ProgramManager.h"
 
-ProgramManager::ProgramManager()
+ProgramManager::ProgramManager() : currentState(std::make_unique<UnsortedState>())
 {
 	shaderManager.loadShader("myshader.vert", "myshader.frag", barChart);
 }
@@ -8,4 +8,29 @@ ProgramManager::ProgramManager()
 void ProgramManager::updateWindow()
 {
 	renderWindow.updateWindow(shaderManager, barChart);
+}
+
+void ProgramManager::update()
+{
+	currentState->update(barChart);
+}
+
+void ProgramManager::render()
+{
+	currentState->render(renderWindow, shaderManager, barChart);
+}
+
+void ProgramManager::handleEvent(SDL_Event& event)
+{
+	currentState->handleEvent(event);
+}
+
+void ProgramManager::changeState()
+{
+	currentState->changeState(*this);
+}
+
+void ProgramManager::setState(std::unique_ptr<ProgramState> newState)
+{
+	currentState = std::move(newState);
 }

@@ -147,17 +147,28 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BarChart\BarChart.cpp" />
+    <ClCompile Include="SortAlgorithm\SelectionSort.cpp" />
+    <ClCompile Include="SortAlgorithm\BubbleSort.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ProgramManager\ProgramManager.cpp" />
     <ClCompile Include="RenderWindow\RenderWindow.cpp" />
     <ClCompile Include="ShaderManager\ShaderManager.cpp" />
+    <ClCompile Include="ProgramState\UnsortedState.cpp" />
+    <ClCompile Include="ProgramState\SortingState.cpp" />
+    <ClCompile Include="SortAlgorithm\SortAlgorithm.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BarChart\BarChart.h" />
+    <ClInclude Include="SortAlgorithm\SelectionSort.h" />
+    <ClInclude Include="SortAlgorithm\BubbleSort.h" />
     <ClInclude Include="ProgramManager\ProgramManager.h" />
+    <ClInclude Include="ProgramState\ProgramState.h" />
     <ClInclude Include="RenderWindow\RenderWindow.h" />
     <ClInclude Include="SDLSubSystem\SDLSubSystem.h" />
     <ClInclude Include="ShaderManager\ShaderManager.h" />
+    <ClInclude Include="ProgramState\UnsortedState.h" />
+    <ClInclude Include="ProgramState\SortingState.h" />
+    <ClInclude Include="SortAlgorithm\SortAlgorithm.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="myshader.frag" />
