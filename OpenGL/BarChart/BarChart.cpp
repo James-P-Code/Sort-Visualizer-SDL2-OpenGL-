@@ -6,9 +6,10 @@ BarChart::BarChart()
     constexpr int numberOfRectangles = 100, verticesPerRectangle = 4;
     constexpr GLfloat rectangleWidth = 2.0f / numberOfRectangles; // OpenGL render coordinates are -1 to 1, so this will give the appropriate width for the rectangles
     constexpr GLfloat windowBottomCoordinate = -1.0f; // same as the rectangle width, the render coordinates are -1 to 1, where -1 is the bottom of the render area
+    constexpr float byteMultiplier = 255.0f;
     GLfloat xPosition = -1.0f;
     GLfloat topLeftColorR = 0.31f, topLeftColorG = 0.55f, topLeftColorB = 0.91f;
-    GLfloat topRightColorR = 0.03f, topRightColorG = 0.37f, topRightColorB = 0.96f;
+    GLfloat topRightColorR = 0.00f, topRightColorG = 0.37f, topRightColorB = 0.96f;
     GLfloat bottomRightColorR = 0.09f, bottomRightColorG = 0.22f, bottomRightColorB = 0.44f;
     GLfloat bottomLeftColorR = 0.01f, bottomLeftColorG = 0.16f, bottomLeftColorB = 0.42f;
     int vertexIndex = 0;
@@ -45,21 +46,23 @@ BarChart::BarChart()
         rectangleVertices.push_back(windowBottomCoordinate); // bottom left y
 
         // RGB color values for each corner vertex
-        vertexColors.push_back(topLeftColorR);
-        vertexColors.push_back(topLeftColorG);
-        vertexColors.push_back(topLeftColorB);
+        // the use of std::round is based on https://stackoverflow.com/questions/1914115/converting-color-value-from-float-0-1-to-byte-0-255
+        // OpenGL uses floats in the range of 0.0 - 1.0 for color values, but we can store them as unsigned bytes.
+        vertexColors.push_back(std::round(topLeftColorR * byteMultiplier));
+        vertexColors.push_back(std::round(topLeftColorG * byteMultiplier));
+        vertexColors.push_back(std::round(topLeftColorB * byteMultiplier));
 
-        vertexColors.push_back(topRightColorR);
-        vertexColors.push_back(topRightColorG);
-        vertexColors.push_back(topRightColorB);
+        vertexColors.push_back(std::round(topRightColorR * byteMultiplier));
+        vertexColors.push_back(std::round(topRightColorG * byteMultiplier));
+        vertexColors.push_back(std::round(topRightColorB * byteMultiplier));
 
-        vertexColors.push_back(bottomRightColorR);
-        vertexColors.push_back(bottomRightColorG);
-        vertexColors.push_back(bottomRightColorB);
+        vertexColors.push_back(std::round(bottomRightColorR * byteMultiplier));
+        vertexColors.push_back(std::round(bottomRightColorG * byteMultiplier));
+        vertexColors.push_back(std::round(bottomRightColorB * byteMultiplier));
 
-        vertexColors.push_back(bottomLeftColorR);
-        vertexColors.push_back(bottomLeftColorG);
-        vertexColors.push_back(bottomLeftColorB);
+        vertexColors.push_back(std::round(bottomLeftColorR * byteMultiplier));
+        vertexColors.push_back(std::round(bottomLeftColorG * byteMultiplier));
+        vertexColors.push_back(std::round(bottomLeftColorB * byteMultiplier));
 
         topRightColorR += 0.01f;
 
@@ -81,7 +84,7 @@ const std::vector<GLfloat>& BarChart::getRectangleVertices() const
     return rectangleVertices;
 }
 
-const std::vector<GLfloat>& BarChart::getVertexColors() const
+const std::vector<GLubyte>& BarChart::getVertexColors() const
 {
     return vertexColors;
 }

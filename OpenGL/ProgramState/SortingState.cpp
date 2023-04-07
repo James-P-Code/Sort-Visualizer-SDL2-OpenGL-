@@ -22,8 +22,6 @@ void SortingState::update(BarChart& barChart)
 
 void SortingState::render(RenderWindow& renderWindow, ShaderManager& shaderManager, BarChart& barChart)
 {
-	constexpr int bufferIndexOffset = 9;
-
 	renderWindow.setRectangleToHighlight(sortAlgorithm->getRectangleToHighlight());
 
 	if (!barChart.getVerticesToSwap().empty())

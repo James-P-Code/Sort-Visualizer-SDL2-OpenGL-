@@ -77,8 +77,8 @@ void ShaderManager::createBuffers(BarChart& barChart)
 	glVertexAttribPointer(0, floatsPerVertex, GL_FLOAT, GL_FALSE, floatsPerVertex * sizeof(GLfloat), (void*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
-	glBufferData(GL_ARRAY_BUFFER, barChart.getVertexColors().size() * sizeof(GLfloat), barChart.getVertexColors().data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, floatsPerColor, GL_FLOAT, GL_FALSE, floatsPerColor * sizeof(GLfloat), (void*)0);
+	glBufferData(GL_ARRAY_BUFFER, barChart.getVertexColors().size() * sizeof(GLubyte), barChart.getVertexColors().data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, floatsPerColor, GL_UNSIGNED_BYTE, GL_TRUE, floatsPerColor * sizeof(GLubyte), (void*)0);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, barChart.getIndices().size() * sizeof(GLushort), barChart.getIndices().data(), GL_STATIC_DRAW);
