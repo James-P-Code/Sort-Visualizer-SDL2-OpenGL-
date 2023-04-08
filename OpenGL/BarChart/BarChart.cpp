@@ -94,46 +94,15 @@ const std::vector<GLushort>& BarChart::getIndices() const
     return vertexIndices;
 }
 
-const std::vector<GLfloat>& BarChart::getVerticesToSwap() const
-{
-    return verticesToSwap;
-}
-
 // Swaps the vertices of 2 rectangles, given the starting index of each rectangle.  The index parameters should be equal to the index of the top left corner X vertex 
 // for each rectangle.  This function will swap the vertices and prepare a vector consisting of the swapped vertices.  That vector will be used to update the vertex
 // buffer object that is used for rendering.
 void BarChart::swapVertices(const std::pair<size_t, size_t>& indexOfSwap)
 {
-    constexpr int floatsPerRectange = 8;
     constexpr size_t topLeftYOffset = 1, topRightYOffset = 3;
-    constexpr size_t currentRectangleTopLeftYIndex = 1, currentRectangleTopRightYIndex = 3;
-    constexpr size_t nextRectangleTopLeftYIndex = 9, nextRectangleTopRightYIndex = 11;
-    verticesToSwap.resize(floatsPerRectange * 2);
 
-    // we aren't swapping any x coordinates so we can fill the swap vector with the all the data of the current and next rectangle before we swap the y coordinates
-    for (size_t i = 0; i < floatsPerRectange; ++i)
-    {
-        verticesToSwap.at(i) = rectangleVertices.at(i + indexOfSwap.first);
-        verticesToSwap.at(i + floatsPerRectange) = rectangleVertices.at(i + indexOfSwap.second);
-    }
-
-    // because the top left and top right corners share the same y value we only need 1 temporary height value for the swap
-    GLfloat tempYPosition = rectangleVertices.at(indexOfSwap.first + topLeftYOffset);
-
-    verticesToSwap.at(currentRectangleTopLeftYIndex) = rectangleVertices.at(indexOfSwap.second + topLeftYOffset);
-    verticesToSwap.at(currentRectangleTopRightYIndex) = rectangleVertices.at(indexOfSwap.second + topRightYOffset);
-    verticesToSwap.at(nextRectangleTopLeftYIndex) = rectangleVertices.at(indexOfSwap.first + topLeftYOffset);
-    verticesToSwap.at(nextRectangleTopRightYIndex) = rectangleVertices.at(indexOfSwap.first + topRightYOffset);
-
-    rectangleVertices.at(indexOfSwap.first + topLeftYOffset) = rectangleVertices.at(indexOfSwap.second + topLeftYOffset);
-    rectangleVertices.at(indexOfSwap.first + topRightYOffset) = rectangleVertices.at(indexOfSwap.second + topRightYOffset);
-    rectangleVertices.at(indexOfSwap.second + topLeftYOffset) = tempYPosition;
-    rectangleVertices.at(indexOfSwap.second + topRightYOffset) = tempYPosition;
-}
-
-void BarChart::clearSwaps()
-{
-    verticesToSwap.clear();
+    std::swap(rectangleVertices.at(indexOfSwap.first + topLeftYOffset), rectangleVertices.at(indexOfSwap.second + topLeftYOffset));
+    std::swap(rectangleVertices.at(indexOfSwap.first + topRightYOffset), rectangleVertices.at(indexOfSwap.second + topRightYOffset));
 }
 
 // normalize a number to be within the range of the OpenGL render coordinates (-1 to 1)

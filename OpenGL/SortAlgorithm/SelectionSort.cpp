@@ -32,7 +32,7 @@ void SelectionSort::sort()
 			currentRectangle = 1;
 			++sortIterator;
 		}
-		rectangleToHighlight = std::floor((currentRectangle - 1) / 2);
+		setRectangleToHighlight(currentRectangle);
 	}
 
 	if (indexOfMinimum > 0 && sortIterator == numberOfRectangles - 1)

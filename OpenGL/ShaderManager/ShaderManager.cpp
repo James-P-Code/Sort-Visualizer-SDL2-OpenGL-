@@ -3,11 +3,14 @@
 
 ShaderManager::~ShaderManager()
 {
-	glDeleteVertexArrays(1, &vertexArrayObject);
+	glUseProgram(0);
+	glDeleteProgram(programID);
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
 	glDeleteBuffers(1, &vertexVBO);
 	glDeleteBuffers(1, &colorVBO);
 	glDeleteBuffers(1, &elementBufferObject);
-	glDeleteProgram(programID);
+	glDeleteVertexArrays(1, &vertexArrayObject);
 }
 
 void ShaderManager::loadShader(const std::string& vertextShaderFile, const std::string& fragmentShaderFile, BarChart& barChart)
@@ -63,7 +66,7 @@ const GLuint& ShaderManager::getVertexArrayObject() const
 
 void ShaderManager::createBuffers(BarChart& barChart)
 {
-	constexpr GLint floatsPerVertex = 2, floatsPerColor = 3;
+	constexpr GLint floatsPerVertex = 2, bytesPerColor = 3;
 
 	glGenVertexArrays(1, &vertexArrayObject);
 	glGenBuffers(1, &vertexVBO);
@@ -78,7 +81,7 @@ void ShaderManager::createBuffers(BarChart& barChart)
 
 	glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
 	glBufferData(GL_ARRAY_BUFFER, barChart.getVertexColors().size() * sizeof(GLubyte), barChart.getVertexColors().data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, floatsPerColor, GL_UNSIGNED_BYTE, GL_TRUE, floatsPerColor * sizeof(GLubyte), (void*)0);
+	glVertexAttribPointer(1, bytesPerColor, GL_UNSIGNED_BYTE, GL_TRUE, bytesPerColor * sizeof(GLubyte), (void*)0);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, barChart.getIndices().size() * sizeof(GLushort), barChart.getIndices().data(), GL_STATIC_DRAW);
@@ -97,17 +100,23 @@ const GLsizei& ShaderManager::getVerticesCount() const
 	return verticesToDraw;
 }
 
-// update the vertex buffer object with the vertices of 2 swapped rectangles.  the indices are where the swapped vertices will be placed in the
-// vertex buffer.  the vector contains the updated vertices (vertices that have already been swapped to their new positions)
-void ShaderManager::updateVertexBuffer(const std::pair<size_t, size_t>& indexOfSwap, const std::vector<GLfloat>& verticesToSwap) const
+// update the vertex buffer object with the vertices of 2 swapped rectangles.  the indices correspond to the rectangles that have
+// already been swapped in the rectangleVertices vector.  not every sort swaps rectangles that are next to each other, thus the need
+// for the 2 indices
+void ShaderManager::updateVertexBuffer(const std::pair<size_t, size_t>& indexOfSwap, const std::vector<GLfloat>& rectangleVertices) const
 {
 	constexpr int floatsPerRectangle = 8;
 
-	std::vector<GLfloat> firstSwap(verticesToSwap.begin(), verticesToSwap.begin() + floatsPerRectangle);
-	std::vector<GLfloat> secondSwap(verticesToSwap.begin() + floatsPerRectangle, verticesToSwap.end());
-
 	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
-	glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.first * sizeof(GLfloat), floatsPerRectangle * sizeof(GLfloat), firstSwap.data());
-	glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.second * sizeof(GLfloat), floatsPerRectangle * sizeof(GLfloat), secondSwap.data());
+	// if we're updating one continuous range we only need 1 glBufferSubData call
+	if (indexOfSwap.second == indexOfSwap.first + floatsPerRectangle)
+	{
+		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.first * sizeof(GLfloat), (floatsPerRectangle * 2) * sizeof(GLfloat), &rectangleVertices.at(indexOfSwap.first));
+	}
+	else
+	{
+		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.first * sizeof(GLfloat), floatsPerRectangle * sizeof(GLfloat), &rectangleVertices.at(indexOfSwap.first));
+		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.second * sizeof(GLfloat), floatsPerRectangle * sizeof(GLfloat), &rectangleVertices.at(indexOfSwap.second));
+	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

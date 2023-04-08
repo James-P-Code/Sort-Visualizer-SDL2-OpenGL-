@@ -1,8 +1,8 @@
 #version 460 core
-out vec4 baseColor;
-in vec3 myColor;
+out vec4 currentColor;
+in vec3 fragmentColor;
 
 void main()
 {
-	baseColor = vec4(myColor, 1.0);
+	currentColor = vec4(fragmentColor, 1.0);
 } 

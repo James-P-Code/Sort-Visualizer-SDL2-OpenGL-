@@ -15,6 +15,7 @@ public:
 	virtual ~SortAlgorithm() {};
 	virtual void sort() = 0;
 	const std::pair<size_t, size_t>& getSwapIndices() const; // indices of the swapped rectangles.  used to update the vertex buffer
+	void setRectangleToHighlight(const GLint vertexIndexToHighlight);
 	const GLint getRectangleToHighlight() const;
 
 	enum class SortType

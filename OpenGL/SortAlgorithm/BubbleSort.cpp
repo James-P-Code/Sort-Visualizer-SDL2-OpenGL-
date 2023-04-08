@@ -29,7 +29,8 @@ void BubbleSort::sort()
         }
     }
 
-    rectangleToHighlight = std::floor((currentVertex - 1) / 2);
+    setRectangleToHighlight(currentVertex);
+
     if (sortIterator == numberOfRectangles)
     {
         //     sortedStatus = true;

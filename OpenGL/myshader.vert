@@ -1,21 +1,21 @@
 #version 460 core
-layout (location = 0) in vec2 position;
-layout (location = 1) in vec3 vColor;
+layout (location = 0) in vec2 vertexPosition;
+layout (location = 1) in vec3 vertexColor;
 
 const int maxIndexOffset = 4;
-uniform int highlightVertex;
-out vec3 myColor;
+uniform int highlightVertexID;
+out vec3 fragmentColor;
 
 void main()
 {
-    gl_Position = vec4(position.x, position.y, 0.0, 1.0);
+    gl_Position = vec4(vertexPosition.x, vertexPosition.y, 0.0, 1.0);
 
-    if (highlightVertex >= gl_VertexID && highlightVertex <= gl_VertexID + maxIndexOffset)
+    if (highlightVertexID > gl_VertexID && highlightVertexID <= gl_VertexID + maxIndexOffset)
     {
-        myColor = vec3(0.08, 0.96, 0.19);
+        fragmentColor = vec3(0.08, 0.96, 0.19);
     }
     else
     {
-        myColor = vColor;
+        fragmentColor = vertexColor;
     }
 }
