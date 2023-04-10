@@ -122,6 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>E:\GLM\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BarChart\BarChart.cpp" />
+    <ClCompile Include="SortAlgorithm\InsertionSort.cpp" />
     <ClCompile Include="SortAlgorithm\SelectionSort.cpp" />
     <ClCompile Include="SortAlgorithm\BubbleSort.cpp" />
     <ClCompile Include="main.cpp" />
@@ -159,6 +161,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BarChart\BarChart.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="SortAlgorithm\InsertionSort.h" />
     <ClInclude Include="SortAlgorithm\SelectionSort.h" />
     <ClInclude Include="SortAlgorithm\BubbleSort.h" />
     <ClInclude Include="ProgramManager\ProgramManager.h" />

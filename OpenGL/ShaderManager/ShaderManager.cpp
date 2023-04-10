@@ -66,8 +66,6 @@ const GLuint& ShaderManager::getVertexArrayObject() const
 
 void ShaderManager::createBuffers(BarChart& barChart)
 {
-	constexpr GLint floatsPerVertex = 2, bytesPerColor = 3;
-
 	glGenVertexArrays(1, &vertexArrayObject);
 	glGenBuffers(1, &vertexVBO);
 	glGenBuffers(1, &colorVBO);
@@ -76,11 +74,11 @@ void ShaderManager::createBuffers(BarChart& barChart)
 	glBindVertexArray(vertexArrayObject);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
-	glBufferData(GL_ARRAY_BUFFER, barChart.getRectangleVertices().size() * sizeof(GLfloat), barChart.getRectangleVertices().data(), GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(0, floatsPerVertex, GL_FLOAT, GL_FALSE, floatsPerVertex * sizeof(GLfloat), (void*)0);
+	glBufferData(GL_ARRAY_BUFFER, barChart.getRectangleVertices().size() * sizeof(glm::vec2), barChart.getRectangleVertices().data(), GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, floatsPerVertex, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
-	glBufferData(GL_ARRAY_BUFFER, barChart.getVertexColors().size() * sizeof(GLubyte), barChart.getVertexColors().data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, barChart.getVertexColors().size() * sizeof(glm::u8vec3), barChart.getVertexColors().data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(1, bytesPerColor, GL_UNSIGNED_BYTE, GL_TRUE, bytesPerColor * sizeof(GLubyte), (void*)0);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
@@ -92,7 +90,7 @@ void ShaderManager::createBuffers(BarChart& barChart)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	verticesToDraw = static_cast<GLsizei>(barChart.getRectangleVertices().size());
+	verticesToDraw = static_cast<GLsizei>(barChart.getIndices().size());
 }
 
 const GLsizei& ShaderManager::getVerticesCount() const
@@ -103,20 +101,26 @@ const GLsizei& ShaderManager::getVerticesCount() const
 // update the vertex buffer object with the vertices of 2 swapped rectangles.  the indices correspond to the rectangles that have
 // already been swapped in the rectangleVertices vector.  not every sort swaps rectangles that are next to each other, thus the need
 // for the 2 indices
-void ShaderManager::updateVertexBuffer(const std::pair<size_t, size_t>& indexOfSwap, const std::vector<GLfloat>& rectangleVertices) const
+void ShaderManager::updateVertexBuffer(const std::pair<size_t, size_t>& indexOfSwap, const std::vector<glm::vec2>& rectangleVertices) const
 {
-	constexpr int floatsPerRectangle = 8;
-
 	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
-	// if we're updating one continuous range we only need 1 glBufferSubData call
-	if (indexOfSwap.second == indexOfSwap.first + floatsPerRectangle)
+	
+	if (indexOfSwap.second == indexOfSwap.first + verticesPerRectangle) // if we're updating one continuous range we only need 1 glBufferSubData call
 	{
-		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.first * sizeof(GLfloat), (floatsPerRectangle * 2) * sizeof(GLfloat), &rectangleVertices.at(indexOfSwap.first));
+		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.first * sizeof(glm::vec2), (verticesPerRectangle * 2) * sizeof(glm::vec2), glm::value_ptr(rectangleVertices.at(indexOfSwap.first)));
 	}
 	else
 	{
-		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.first * sizeof(GLfloat), floatsPerRectangle * sizeof(GLfloat), &rectangleVertices.at(indexOfSwap.first));
-		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.second * sizeof(GLfloat), floatsPerRectangle * sizeof(GLfloat), &rectangleVertices.at(indexOfSwap.second));
+		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.first * sizeof(glm::vec2), verticesPerRectangle * sizeof(glm::vec2), glm::value_ptr(rectangleVertices.at(indexOfSwap.first)));
+		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.second * sizeof(glm::vec2), verticesPerRectangle * sizeof(glm::vec2), glm::value_ptr(rectangleVertices.at(indexOfSwap.second)));
 	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+// update the vertex buffer object with the vertices of just one single rectangle
+void ShaderManager::updateVertexBuffer(const size_t indexOfUpdate, const std::vector<glm::vec2>& rectangleVertices) const
+{
+	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
+	glBufferSubData(GL_ARRAY_BUFFER, indexOfUpdate * sizeof(glm::vec2), 2 * sizeof(glm::vec2), glm::value_ptr(rectangleVertices.at(indexOfUpdate)));
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

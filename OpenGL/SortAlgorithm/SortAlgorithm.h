@@ -1,6 +1,7 @@
 #pragma once
-#include "../BarChart/BarChart.h"
 #include <vector>
+#include "../BarChart/BarChart.h"
+#include "../Constants.h"
 
 /* Because this program is driven by a loop in main, and a state design, each sort is an iterative version of its
 *  respective algorithm.  That is, each sort is designed to only do one step at a time, rather than looping through 
@@ -14,19 +15,20 @@ public:
 	SortAlgorithm(BarChart& barChart);
 	virtual ~SortAlgorithm() {};
 	virtual void sort() = 0;
-	const std::pair<size_t, size_t>& getSwapIndices() const; // indices of the swapped rectangles.  used to update the vertex buffer
-	void setRectangleToHighlight(const GLint vertexIndexToHighlight);
+	const size_t getCurrentVertex() const;
 	const GLint getRectangleToHighlight() const;
+	const std::pair<size_t, size_t>& getSwapIndices() const; // indices of the swapped rectangles.  used to update the vertex buffer
+	const bool updateSingleRectangle() const;
 
 	enum class SortType
 	{
-		None, BubbleSort, SelectionSort
+		None, BubbleSort, SelectionSort, InsertionSort
 	};
 
 protected:
-	static constexpr size_t floatsPerRectangles = 8;
 	BarChart& barChart;
-	const std::vector<GLfloat>& rectangleVertices;
 	std::pair<size_t, size_t> swapIndices;
+	bool updateSingleRectangleStatus;
+	size_t currentVertex, sortIterator;
 	GLint rectangleToHighlight;
 };

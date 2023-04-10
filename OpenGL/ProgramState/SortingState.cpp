@@ -13,6 +13,7 @@ void SortingState::update(BarChart& barChart)
 		{
 			case SortAlgorithm::SortType::BubbleSort: sortAlgorithm = std::make_unique<BubbleSort>(barChart); break;
 			case SortAlgorithm::SortType::SelectionSort: sortAlgorithm = std::make_unique<SelectionSort>(barChart); break;
+			case SortAlgorithm::SortType::InsertionSort: sortAlgorithm = std::make_unique<InsertionSort>(barChart); break;
 		}
 		
 	}
@@ -24,6 +25,12 @@ void SortingState::render(RenderWindow& renderWindow, ShaderManager& shaderManag
 {
 	renderWindow.setRectangleToHighlight(sortAlgorithm->getRectangleToHighlight());
 	shaderManager.updateVertexBuffer(sortAlgorithm->getSwapIndices(), barChart.getRectangleVertices());
+
+	if (sortAlgorithm->updateSingleRectangle())
+	{
+		shaderManager.updateVertexBuffer(sortAlgorithm->getCurrentVertex(), barChart.getRectangleVertices());
+	}
+
 	renderWindow.updateWindow(shaderManager, barChart);
 }
 

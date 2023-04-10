@@ -10,7 +10,6 @@ public:
 private:
 	void sort() override;
 
-	static constexpr int numberOfRectangles = 100;
-	size_t sortIterator = 0, currentRectangle = 1, indexOfMinimum = 0;
+	size_t indexOfMinimum;
 };
 

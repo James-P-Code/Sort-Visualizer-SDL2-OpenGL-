@@ -1,35 +1,34 @@
 #include "BubbleSort.h"
 
-BubbleSort::BubbleSort(BarChart& barChart) :  SortAlgorithm(barChart) {}
+BubbleSort::BubbleSort(BarChart& barChart) :  SortAlgorithm(barChart),
+                                              swapOccurred(false) {}
 
 void BubbleSort::sort()
 {
-    constexpr int numberOfRectangles = 100;
-    constexpr size_t floatsPerRectangle = 8, currentRectangleTopLeftOffset = 1, nextRectangleTopLeftOffset = 7;
     swapOccurred = false;
 
     if (sortIterator < numberOfRectangles)
     {
-        if (currentVertex < (numberOfRectangles * floatsPerRectangle) - (sortIterator * floatsPerRectangle) - floatsPerRectangle)
+        if (currentVertex < (numberOfRectangles * verticesPerRectangle) - (sortIterator * verticesPerRectangle) - verticesPerRectangle)
         {
-            if (rectangleVertices.at(currentVertex) > rectangleVertices.at(currentVertex + floatsPerRectangle))
+            if (barChart.getRectangleVertices().at(currentVertex).y > barChart.getRectangleVertices().at(currentVertex + verticesPerRectangle).y)
             {
                 swapOccurred = true;
-                swapIndices.first = currentVertex - currentRectangleTopLeftOffset;
-                swapIndices.second = currentVertex + nextRectangleTopLeftOffset;
-                barChart.swapVertices(swapIndices);
+                swapIndices.first = currentVertex;
+                swapIndices.second = currentVertex + verticesPerRectangle;
+                barChart.swapRectangles(swapIndices);
             }
-            currentVertex += floatsPerRectangle;
+            currentVertex += verticesPerRectangle;
         }
         else
         {
-            currentVertex = 1;
+            currentVertex = 0;
             sortIterator++;
             swapOccurred = false;
         }
     }
 
-    setRectangleToHighlight(currentVertex);
+    rectangleToHighlight = currentVertex;
 
     if (sortIterator == numberOfRectangles)
     {

@@ -21,6 +21,7 @@ void UnsortedState::handleEvent(SDL_Event& event)
 		{
 			case SDLK_1: sortType = SortAlgorithm::SortType::BubbleSort; break;
 			case SDLK_2: sortType = SortAlgorithm::SortType::SelectionSort; break;
+			case SDLK_3: sortType = SortAlgorithm::SortType::InsertionSort; break;
 		}
 		
 		if (sortType != SortAlgorithm::SortType::None)

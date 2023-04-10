@@ -4,6 +4,7 @@
 #include "../ShaderManager/ShaderManager.h"
 #include "../SortAlgorithm/BubbleSort.h"
 #include "../SortAlgorithm/SelectionSort.h"
+#include "../SortAlgorithm/InsertionSort.h"
 
 class ProgramManager;
 

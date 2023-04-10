@@ -1,38 +1,39 @@
 #include "SelectionSort.h"
 
-SelectionSort::SelectionSort(BarChart& barChart) : SortAlgorithm(barChart) {}
+SelectionSort::SelectionSort(BarChart& barChart) : SortAlgorithm(barChart),
+												   indexOfMinimum(0) {}
 
 void SelectionSort::sort()
 {
 	if (sortIterator < numberOfRectangles - 1)
 	{
-		if (currentRectangle < (sortIterator + 1) * floatsPerRectangles)
+		if (currentVertex < (sortIterator + 1) * verticesPerRectangle)
 		{
 			// we always use the top left corner y coordinate in our comparisons, which is index 1 on the first iteration of the loop
-			indexOfMinimum = (sortIterator * floatsPerRectangles) + 1; // first iteration this would be (0 * 8) + 1 = 1, or the index of the first rectangle's top left corner y coordinate
-			currentRectangle = ((sortIterator + 1) * floatsPerRectangles) + 1; // first iteration this would be (0 + 1) * 8) + 1 = 9, or the index of the 2nd rectangle's top left corner y coordinate
+			indexOfMinimum = (sortIterator * verticesPerRectangle); // first iteration this would be (0 * 8) + 1 = 1, or the index of the first rectangle's top left corner y coordinate
+			currentVertex = (sortIterator + 1) * verticesPerRectangle; // first iteration this would be (0 + 1) * 8) + 1 = 9, or the index of the 2nd rectangle's top left corner y coordinate
 		}
 
-		if (currentRectangle < numberOfRectangles * floatsPerRectangles)
+		if (currentVertex < numberOfRectangles * verticesPerRectangle)
 		{
-			if (rectangleVertices.at(currentRectangle) < rectangleVertices.at(indexOfMinimum))
+			if (barChart.getRectangleVertices().at(currentVertex).y < barChart.getRectangleVertices().at(indexOfMinimum).y)
 			{
-				indexOfMinimum = currentRectangle;
+				indexOfMinimum = currentVertex;
 			}
-			currentRectangle += floatsPerRectangles;
+			currentVertex += verticesPerRectangle;
 		}
 		else
 		{
-			if (indexOfMinimum != 1)
+			if (indexOfMinimum != 0)
 			{
-				swapIndices.first = indexOfMinimum - 1;
-				swapIndices.second = sortIterator * floatsPerRectangles;
-				barChart.swapVertices(swapIndices);
+				swapIndices.first = indexOfMinimum;
+				swapIndices.second = sortIterator * verticesPerRectangle;
+				barChart.swapRectangles(swapIndices);
 			}
-			currentRectangle = 1;
+			currentVertex = 0;
 			++sortIterator;
 		}
-		setRectangleToHighlight(currentRectangle);
+		rectangleToHighlight = currentVertex;
 	}
 
 	if (indexOfMinimum > 0 && sortIterator == numberOfRectangles - 1)

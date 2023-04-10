@@ -1,16 +1,15 @@
 #include "SortAlgorithm.h"
 
-SortAlgorithm::SortAlgorithm(BarChart& barChart) : barChart (barChart), 
-										           rectangleVertices (barChart.getRectangleVertices()),
-												   swapIndices (std::make_pair(0, 0)),
+SortAlgorithm::SortAlgorithm(BarChart& barChart) : barChart (barChart),
+												   swapIndices(std::make_pair(0, 0)),
+												   updateSingleRectangleStatus (false),
+												   currentVertex (0),
+												   sortIterator (0),
 												   rectangleToHighlight (0) {}
 
-// Sets the index of the rectangle to highlight during the sort.  This index is used by the shader to determine which
-// vertices to color to highlight the rectangle that we wish to highlight.  Because we are using vertex indices to render
-// each rectangle we have to convert the vertex index to match the render index.  That is what this function does.
-void SortAlgorithm::setRectangleToHighlight(const GLint vertexIndexToHighlight)
+const size_t SortAlgorithm::getCurrentVertex() const
 {
-	rectangleToHighlight = ((vertexIndexToHighlight - 1) * 0.5) + 4;
+	return currentVertex;
 }
 
 const GLint SortAlgorithm::getRectangleToHighlight() const
@@ -21,4 +20,9 @@ const GLint SortAlgorithm::getRectangleToHighlight() const
 const std::pair<size_t, size_t>& SortAlgorithm::getSwapIndices() const
 {
 	return swapIndices;
+}
+
+const bool SortAlgorithm::updateSingleRectangle() const
+{
+	return updateSingleRectangleStatus;
 }

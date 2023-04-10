@@ -9,8 +9,7 @@ public:
 	BubbleSort(BarChart& barChart);
 
 private:
-	size_t sortIterator = 0, currentVertex = 1;
-	bool swapOccurred = false;
+	bool swapOccurred;
 
 	void sort() override;
 };

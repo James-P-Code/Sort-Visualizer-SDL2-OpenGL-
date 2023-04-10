@@ -1,7 +1,4 @@
 #include <SDL.h>
-#include <GL/glew.h>
-#include <SDL_opengl.h>
-#include <GL/GLU.h>
 #include "ProgramManager/ProgramManager.h"
 
 int main(int argc, char* argv[])

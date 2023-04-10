@@ -45,6 +45,9 @@
     <ClCompile Include="SortAlgorithm\SelectionSort.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SortAlgorithm\InsertionSort.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SDLSubSystem\SDLSubSystem.h">
@@ -78,6 +81,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SortAlgorithm\SelectionSort.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SortAlgorithm\InsertionSort.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

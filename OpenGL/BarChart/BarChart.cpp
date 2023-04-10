@@ -2,8 +2,8 @@
 
 BarChart::BarChart()
 {
+    glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
     constexpr size_t topRightVertexIndexOffset = 1, bottomRightVertexIndexOffset = 2, bottomLeftVertexIndexOffset = 3;
-    constexpr int numberOfRectangles = 100, verticesPerRectangle = 4;
     constexpr GLfloat rectangleWidth = 2.0f / numberOfRectangles; // OpenGL render coordinates are -1 to 1, so this will give the appropriate width for the rectangles
     constexpr GLfloat windowBottomCoordinate = -1.0f; // same as the rectangle width, the render coordinates are -1 to 1, where -1 is the bottom of the render area
     constexpr float byteMultiplier = 255.0f;
@@ -29,42 +29,18 @@ BarChart::BarChart()
   
     for (size_t i = 0; i < numberOfRectangles; ++i)
     {
-        // top left
-        rectangleVertices.push_back(xPosition); // top left x
-        rectangleVertices.push_back(height.at(i)); // top left y
-
-        // top right
-        rectangleVertices.push_back(xPosition + rectangleWidth); // top right x
-        rectangleVertices.push_back(height.at(i)); //top right y
-
-        // bottom right
-        rectangleVertices.push_back(xPosition + rectangleWidth); // bottom right x
-        rectangleVertices.push_back(windowBottomCoordinate); // bottom right y
-
-        //bottom left
-        rectangleVertices.push_back(xPosition); // bottom left x
-        rectangleVertices.push_back(windowBottomCoordinate); // bottom left y
+        rectangleVertices.push_back(glm::vec2(xPosition, height.at(i))); // top left
+        rectangleVertices.push_back(glm::vec2(xPosition + rectangleWidth, height.at(i))); // top right
+        rectangleVertices.push_back(glm::vec2(xPosition + rectangleWidth, windowBottomCoordinate)); // bottom right
+        rectangleVertices.push_back(glm::vec2(xPosition, windowBottomCoordinate)); // bottom left
 
         // RGB color values for each corner vertex
         // the use of std::round is based on https://stackoverflow.com/questions/1914115/converting-color-value-from-float-0-1-to-byte-0-255
         // OpenGL uses floats in the range of 0.0 - 1.0 for color values, but we can store them as unsigned bytes.
-        vertexColors.push_back(std::round(topLeftColorR * byteMultiplier));
-        vertexColors.push_back(std::round(topLeftColorG * byteMultiplier));
-        vertexColors.push_back(std::round(topLeftColorB * byteMultiplier));
-
-        vertexColors.push_back(std::round(topRightColorR * byteMultiplier));
-        vertexColors.push_back(std::round(topRightColorG * byteMultiplier));
-        vertexColors.push_back(std::round(topRightColorB * byteMultiplier));
-
-        vertexColors.push_back(std::round(bottomRightColorR * byteMultiplier));
-        vertexColors.push_back(std::round(bottomRightColorG * byteMultiplier));
-        vertexColors.push_back(std::round(bottomRightColorB * byteMultiplier));
-
-        vertexColors.push_back(std::round(bottomLeftColorR * byteMultiplier));
-        vertexColors.push_back(std::round(bottomLeftColorG * byteMultiplier));
-        vertexColors.push_back(std::round(bottomLeftColorB * byteMultiplier));
-
-        topRightColorR += 0.01f;
+        vertexColors.push_back(glm::u8vec3(std::round(topLeftColorR * byteMultiplier), std::round(topLeftColorG * byteMultiplier), std::round(topLeftColorB * byteMultiplier)));
+        vertexColors.push_back(glm::u8vec3(std::round(topRightColorR * byteMultiplier), std::round(topRightColorG * byteMultiplier), std::round(topRightColorB * byteMultiplier)));
+        vertexColors.push_back(glm::u8vec3(std::round(bottomRightColorR * byteMultiplier), std::round(bottomRightColorG * byteMultiplier), std::round(bottomRightColorB * byteMultiplier)));
+        vertexColors.push_back(glm::u8vec3(std::round(bottomLeftColorR * byteMultiplier), std::round(bottomLeftColorG * byteMultiplier), std::round(bottomLeftColorB * byteMultiplier)));
 
         // Indices used by the element buffer object
         vertexIndices.push_back(static_cast<GLushort>(vertexIndex));
@@ -74,17 +50,18 @@ BarChart::BarChart()
         vertexIndices.push_back(static_cast<GLushort>(vertexIndex + bottomLeftVertexIndexOffset));
         vertexIndices.push_back(static_cast<GLushort>(vertexIndex));
 
+        topRightColorR += 0.01f;
         xPosition += rectangleWidth;
         vertexIndex += verticesPerRectangle;
     }
 }
 
-const std::vector<GLfloat>& BarChart::getRectangleVertices() const
+const std::vector<glm::vec2>& BarChart::getRectangleVertices() const
 {
     return rectangleVertices;
 }
 
-const std::vector<GLubyte>& BarChart::getVertexColors() const
+const std::vector<glm::u8vec3>& BarChart::getVertexColors() const
 {
     return vertexColors;
 }
@@ -94,15 +71,13 @@ const std::vector<GLushort>& BarChart::getIndices() const
     return vertexIndices;
 }
 
-// Swaps the vertices of 2 rectangles, given the starting index of each rectangle.  The index parameters should be equal to the index of the top left corner X vertex 
-// for each rectangle.  This function will swap the vertices and prepare a vector consisting of the swapped vertices.  That vector will be used to update the vertex
-// buffer object that is used for rendering.
-void BarChart::swapVertices(const std::pair<size_t, size_t>& indexOfSwap)
+// Swaps the vertices of 2 rectangles, given the starting index of each rectangle
+void BarChart::swapRectangles(const std::pair<size_t, size_t>& indexOfSwap)
 {
-    constexpr size_t topLeftYOffset = 1, topRightYOffset = 3;
+    constexpr size_t topRightOffset = 1;
 
-    std::swap(rectangleVertices.at(indexOfSwap.first + topLeftYOffset), rectangleVertices.at(indexOfSwap.second + topLeftYOffset));
-    std::swap(rectangleVertices.at(indexOfSwap.first + topRightYOffset), rectangleVertices.at(indexOfSwap.second + topRightYOffset));
+    std::swap(rectangleVertices.at(indexOfSwap.first).y, rectangleVertices.at(indexOfSwap.second).y);
+    std::swap(rectangleVertices.at(indexOfSwap.first + topRightOffset).y, rectangleVertices.at(indexOfSwap.second + topRightOffset).y);
 }
 
 // normalize a number to be within the range of the OpenGL render coordinates (-1 to 1)
@@ -114,4 +89,10 @@ const GLfloat BarChart::normalize(const float& numberToNormalize) const
     constexpr float maxBarHeight = 1.0f;
 
     return (numberToNormalize - minRange) / (maxRange - minRange) * (maxBarHeight - minBarHeight) + minBarHeight;
+}
+
+void BarChart::updateRectangle(const size_t indexOfUpdate, const glm::vec2& newValue)
+{
+    rectangleVertices.at(indexOfUpdate).y = newValue.y;
+    rectangleVertices.at(indexOfUpdate + 1).y = newValue.y;
 }
