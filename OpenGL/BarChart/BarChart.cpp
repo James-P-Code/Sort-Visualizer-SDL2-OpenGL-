@@ -56,7 +56,17 @@ BarChart::BarChart() :rectangleToHighlight(0)
     }
 
     shader.loadFromFile("barchart.vert", "barchart.frag");
-    shader.createBuffers(&rectangleVertices, &vertexColors, &vertexIndices);
+    shader.createBuffers(rectangleVertices, vertexColors, &vertexIndices);
+    shaderHighlightUniformLocation = glGetUniformLocation(shader.getProgramID(), "highlightVertexID");
+}
+
+void BarChart::draw() const
+{
+    //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glUseProgram(shader.getProgramID());
+    glUniform1i(shaderHighlightUniformLocation, rectangleToHighlight);
+    glBindVertexArray(shader.getVertexArrayObject());
+    glDrawElements(GL_TRIANGLES, vertexIndices.size(), GL_UNSIGNED_SHORT, nullptr);
 }
 
 const std::vector<glm::vec2>& BarChart::getRectangleVertices() const
@@ -102,16 +112,6 @@ void BarChart::updateRectangle(const size_t indexOfUpdate, const glm::vec2& newV
     rectangleVertices.at(indexOfUpdate + 1).y = newValue.y;
 
     shader.updateVertexBuffer(indexOfUpdate, rectangleVertices);
-}
-
-void BarChart::draw() const
-{
-    int shaderHighlightUniform = glGetUniformLocation(shader.getProgramID(), "highlightVertexID");
-    //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glUseProgram(shader.getProgramID());
-    glUniform1i(shaderHighlightUniform, rectangleToHighlight);
-    glBindVertexArray(shader.getVertexArrayObject());
-    glDrawElements(GL_TRIANGLES, vertexIndices.size(), GL_UNSIGNED_SHORT, nullptr);
 }
 
 void BarChart::setRectangleToHighlight(const int rectangleToHighlight)

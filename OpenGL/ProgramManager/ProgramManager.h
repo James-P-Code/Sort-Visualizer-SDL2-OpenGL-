@@ -1,7 +1,10 @@
 #pragma once
+#include <memory>
+#include <vector>
+#include "../RenderWindow/RenderWindow.h"
+#include "../BarChart/BarChart.h"
 #include "../ProgramState/UnsortedState.h"
 #include "../ProgramState/SortingState.h"
-#include <memory>
 
 class ProgramManager final
 {
@@ -16,6 +19,6 @@ public:
 private:
 	RenderWindow renderWindow;
 	BarChart barChart;
+	std::vector<RenderObject*> renderObjects;
 	std::unique_ptr<ProgramState> currentState;
-	bool changeStateStatus = false;
 };

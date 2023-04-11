@@ -148,13 +148,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BarChart\BarChart.cpp" />
+    <ClCompile Include="RenderObject\RenderObject.cpp" />
     <ClCompile Include="SortAlgorithm\InsertionSort.cpp" />
     <ClCompile Include="SortAlgorithm\SelectionSort.cpp" />
     <ClCompile Include="SortAlgorithm\BubbleSort.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ProgramManager\ProgramManager.cpp" />
     <ClCompile Include="RenderWindow\RenderWindow.cpp" />
-    <ClCompile Include="ShaderManager\ShaderManager.cpp" />
+    <ClCompile Include="Shader\Shader.cpp" />
     <ClCompile Include="ProgramState\UnsortedState.cpp" />
     <ClCompile Include="ProgramState\SortingState.cpp" />
     <ClCompile Include="SortAlgorithm\SortAlgorithm.cpp" />
@@ -162,6 +163,7 @@
   <ItemGroup>
     <ClInclude Include="BarChart\BarChart.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="RenderObject\RenderObject.h" />
     <ClInclude Include="SortAlgorithm\InsertionSort.h" />
     <ClInclude Include="SortAlgorithm\SelectionSort.h" />
     <ClInclude Include="SortAlgorithm\BubbleSort.h" />
@@ -169,7 +171,7 @@
     <ClInclude Include="ProgramState\ProgramState.h" />
     <ClInclude Include="RenderWindow\RenderWindow.h" />
     <ClInclude Include="SDLSubSystem\SDLSubSystem.h" />
-    <ClInclude Include="ShaderManager\ShaderManager.h" />
+    <ClInclude Include="Shader\Shader.h" />
     <ClInclude Include="ProgramState\UnsortedState.h" />
     <ClInclude Include="ProgramState\SortingState.h" />
     <ClInclude Include="SortAlgorithm\SortAlgorithm.h" />

@@ -1,6 +1,4 @@
 #include "RenderWindow.h"
-#include "../ShaderManager/ShaderManager.h"
-#include "../BarChart/BarChart.h"
 
 RenderWindow::RenderWindow()
 {
@@ -23,13 +21,13 @@ RenderWindow::RenderWindow()
 	glFrontFace(GL_CW);
 }
 
-void RenderWindow::clearWindow()
+void RenderWindow::clearWindow() const
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
 
-void RenderWindow::updateWindow()
+void RenderWindow::updateWindow() const
 {
 	SDL_GL_SwapWindow(window.get());
 }

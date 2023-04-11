@@ -1,4 +1,7 @@
 #include "SortingState.h"
+#include "../ProgramManager/ProgramManager.h"
+#include "../BarChart/BarChart.h"
+#include "../RenderWindow/RenderWindow.h"
 
 SortingState::SortingState(const SortAlgorithm::SortType& sortType)
 {
@@ -21,10 +24,13 @@ void SortingState::update(BarChart& barChart)
 	sortAlgorithm->sort();
 }
 
-void SortingState::render(RenderWindow& renderWindow, BarChart& barChart)
+void SortingState::render(const RenderWindow& renderWindow, const std::vector<RenderObject*>& renderObjects) const
 {
 	renderWindow.clearWindow();
-	barChart.draw();
+	for (const auto& renderObject : renderObjects)
+	{
+		renderObject->draw();
+	}
 	renderWindow.updateWindow();
 }
 

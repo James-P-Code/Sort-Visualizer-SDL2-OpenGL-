@@ -9,27 +9,24 @@
 #include <vector>
 #include "../Constants.h"
 
-class BarChart;
-
-class ShaderManager final
+class Shader final
 {
 public:
-	~ShaderManager();
+	~Shader();
 	void loadFromFile(const std::string& vertexShaderFile, const std::string& fragmentShaderFile);
 	const GLuint& getProgramID() const;
 	const GLuint& getVertexArrayObject() const;
-	//template <typename V, typename C, typename I> void createBuffers(const std::vector<V>* vertexPositions, const std::vector<C>* vertexColors, const std::vector<I>* vertexIndices = nullptr);
+	void createBuffers(const std::vector<glm::vec2>& vertexPositions, const std::vector<glm::u8vec3>& vertexColors, const std::vector<GLushort>* vertexIndices = nullptr);
 	void updateVertexBuffer(const std::pair<size_t, size_t>& indexOfSwap, const std::vector<glm::vec2>& rectangleVertices) const;
 	void updateVertexBuffer(const size_t indexToUpdate, const std::vector<glm::vec2>& rectangleVertices) const;
 
 private:
-	GLuint programID = 0, vertexVBO = 0, colorVBO = 0, vertexArrayObject = 0, elementBufferObject = 0;
+	GLuint programID = 0, positionsVBO = 0, colorsVBO = 0, vertexArrayObject = 0, elementBufferObject = 0;
 
 	GLuint compileShader(const GLenum& shaderType, const std::string& shaderSource) const;
-	void createBuffers(BarChart& barChart);
+};
 
-public:
-
+/*
 	template <typename V, typename C, typename I>
 	void createBuffers(const std::vector<V>* vertexPositions, const std::vector<C>* vertexColors, const std::vector<I>* vertexIndices = nullptr)
 	{
@@ -60,4 +57,4 @@ public:
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 	}
-};
+*/

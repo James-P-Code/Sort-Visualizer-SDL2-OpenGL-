@@ -1,5 +1,7 @@
 #include "UnsortedState.h"
 #include "../ProgramManager/ProgramManager.h"
+#include "../BarChart/BarChart.h"
+#include "../RenderWindow/RenderWindow.h"
 
 UnsortedState::UnsortedState()
 {
@@ -8,10 +10,13 @@ UnsortedState::UnsortedState()
 
 void UnsortedState::update(BarChart& barChart) {}
 
-void UnsortedState::render(RenderWindow& renderWindow, BarChart& barChart)
+void UnsortedState::render(const RenderWindow& renderWindow, const std::vector<RenderObject*>& renderObjects) const
 {
 	renderWindow.clearWindow();
-	barChart.draw();
+	for (const auto& renderObject : renderObjects)
+	{
+		renderObject->draw();
+	}
 	renderWindow.updateWindow();
 }
 

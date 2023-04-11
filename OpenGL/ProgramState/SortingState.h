@@ -13,7 +13,7 @@ private:
 	std::unique_ptr<SortAlgorithm> sortAlgorithm;
 
 	void update(BarChart& barChart) override;
-	void render(RenderWindow& renderWindow, BarChart& barChart) override;
+	void render(const RenderWindow& renderWindow, const std::vector<RenderObject*>& renderObjects) const override;
 	void handleEvent(SDL_Event& event) override;
 	void changeState(ProgramManager& programManager) override;
 };

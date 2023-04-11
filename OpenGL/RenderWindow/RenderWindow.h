@@ -12,8 +12,8 @@ class RenderWindow final : public SDLSubSystem
 {
 public:
 	RenderWindow();
-	void clearWindow();
-	void updateWindow();
+	void clearWindow() const;
+	void updateWindow() const;
 
 private:
 	struct SDL_Deleter final

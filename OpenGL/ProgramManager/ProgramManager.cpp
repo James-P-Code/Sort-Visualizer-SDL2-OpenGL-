@@ -1,6 +1,9 @@
 #include "ProgramManager.h"
 
-ProgramManager::ProgramManager() : currentState(std::make_unique<UnsortedState>()) {}
+ProgramManager::ProgramManager() : currentState(std::make_unique<UnsortedState>())
+{
+	renderObjects.push_back(&barChart);
+}
 
 void ProgramManager::update()
 {
@@ -9,7 +12,7 @@ void ProgramManager::update()
 
 void ProgramManager::render()
 {
-	currentState->render(renderWindow, barChart);
+	currentState->render(renderWindow, renderObjects);
 }
 
 void ProgramManager::handleEvent(SDL_Event& event)
