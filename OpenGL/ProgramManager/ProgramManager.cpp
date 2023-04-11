@@ -1,9 +1,6 @@
 #include "ProgramManager.h"
 
-ProgramManager::ProgramManager() : currentState(std::make_unique<UnsortedState>())
-{
-	shaderManager.loadShader("myshader.vert", "myshader.frag", barChart);
-}
+ProgramManager::ProgramManager() : currentState(std::make_unique<UnsortedState>()) {}
 
 void ProgramManager::update()
 {
@@ -12,7 +9,7 @@ void ProgramManager::update()
 
 void ProgramManager::render()
 {
-	currentState->render(renderWindow, shaderManager, barChart);
+	currentState->render(renderWindow, barChart);
 }
 
 void ProgramManager::handleEvent(SDL_Event& event)

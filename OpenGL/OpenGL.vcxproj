@@ -175,8 +175,8 @@
     <ClInclude Include="SortAlgorithm\SortAlgorithm.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="myshader.frag" />
-    <None Include="myshader.vert" />
+    <None Include="barchart.frag" />
+    <None Include="barchart.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

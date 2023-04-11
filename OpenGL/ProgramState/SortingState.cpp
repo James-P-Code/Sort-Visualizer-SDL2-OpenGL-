@@ -21,17 +21,11 @@ void SortingState::update(BarChart& barChart)
 	sortAlgorithm->sort();
 }
 
-void SortingState::render(RenderWindow& renderWindow, ShaderManager& shaderManager, BarChart& barChart)
+void SortingState::render(RenderWindow& renderWindow, BarChart& barChart)
 {
-	renderWindow.setRectangleToHighlight(sortAlgorithm->getRectangleToHighlight());
-	shaderManager.updateVertexBuffer(sortAlgorithm->getSwapIndices(), barChart.getRectangleVertices());
-
-	if (sortAlgorithm->updateSingleRectangle())
-	{
-		shaderManager.updateVertexBuffer(sortAlgorithm->getCurrentVertex(), barChart.getRectangleVertices());
-	}
-
-	renderWindow.updateWindow(shaderManager, barChart);
+	renderWindow.clearWindow();
+	barChart.draw();
+	renderWindow.updateWindow();
 }
 
 void SortingState::handleEvent(SDL_Event& event)

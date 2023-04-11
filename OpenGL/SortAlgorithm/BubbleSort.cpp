@@ -26,6 +26,7 @@ void BubbleSort::sort()
             sortIterator++;
             swapOccurred = false;
         }
+        barChart.setRectangleToHighlight(currentVertex);
     }
 
     rectangleToHighlight = currentVertex;

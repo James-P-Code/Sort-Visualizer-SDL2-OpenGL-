@@ -23,23 +23,13 @@ RenderWindow::RenderWindow()
 	glFrontFace(GL_CW);
 }
 
-void RenderWindow::updateWindow(ShaderManager& shaderManager, BarChart& barChart)
+void RenderWindow::clearWindow()
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-	int shaderHighlightUniform = glGetUniformLocation(shaderManager.getProgramID(), "highlightVertexID");
-//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glUseProgram(shaderManager.getProgramID());
-	glUniform1i(shaderHighlightUniform, rectangleToHighlight);
-	glBindVertexArray(shaderManager.getVertexArrayObject());
-	glDrawElements(GL_TRIANGLES, shaderManager.getVerticesCount(), GL_UNSIGNED_SHORT, nullptr);
-
-	SDL_GL_SwapWindow(window.get());
-//	SDL_Delay(300);
 }
 
-void RenderWindow::setRectangleToHighlight(const GLint indexToHighlight)
+void RenderWindow::updateWindow()
 {
-	rectangleToHighlight = indexToHighlight;
+	SDL_GL_SwapWindow(window.get());
 }

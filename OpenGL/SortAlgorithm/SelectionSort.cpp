@@ -33,7 +33,7 @@ void SelectionSort::sort()
 			currentVertex = 0;
 			++sortIterator;
 		}
-		rectangleToHighlight = currentVertex;
+		barChart.setRectangleToHighlight(currentVertex);
 	}
 
 	if (indexOfMinimum > 0 && sortIterator == numberOfRectangles - 1)

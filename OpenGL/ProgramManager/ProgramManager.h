@@ -16,7 +16,6 @@ public:
 private:
 	RenderWindow renderWindow;
 	BarChart barChart;
-	ShaderManager shaderManager;
 	std::unique_ptr<ProgramState> currentState;
 	bool changeStateStatus = false;
 };

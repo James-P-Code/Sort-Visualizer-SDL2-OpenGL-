@@ -12,8 +12,8 @@ class RenderWindow final : public SDLSubSystem
 {
 public:
 	RenderWindow();
-	void updateWindow(ShaderManager& shaderManager, BarChart& barChart);
-	void setRectangleToHighlight(const GLint);
+	void clearWindow();
+	void updateWindow();
 
 private:
 	struct SDL_Deleter final
@@ -25,5 +25,4 @@ private:
 	static constexpr int windowWidth = 800, windowHeight = 600;
 	std::unique_ptr<SDL_Window, SDL_Deleter> window;
 	std::unique_ptr<SDL_GLContext, SDL_Deleter> glContext;
-	GLint rectangleToHighlight;
 };

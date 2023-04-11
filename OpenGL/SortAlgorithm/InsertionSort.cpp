@@ -26,7 +26,7 @@ void InsertionSort::sort()
 			swapIndices.first = currentVertex + verticesPerRectangle;
 			swapIndices.second = currentVertex;
 			barChart.swapRectangles(swapIndices);
-			rectangleToHighlight = currentVertex;
+			barChart.setRectangleToHighlight(currentVertex);
 			currentVertex == 0 ? resetCurrentVertex = true : currentVertex -= verticesPerRectangle;
 		}
 

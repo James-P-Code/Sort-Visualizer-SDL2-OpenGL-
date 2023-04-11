@@ -91,10 +91,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="myshader.vert">
+    <None Include="barchart.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="myshader.frag">
+    <None Include="barchart.frag">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -8,9 +8,11 @@ UnsortedState::UnsortedState()
 
 void UnsortedState::update(BarChart& barChart) {}
 
-void UnsortedState::render(RenderWindow& renderWindow, ShaderManager& shaderManager, BarChart& barChart)
+void UnsortedState::render(RenderWindow& renderWindow, BarChart& barChart)
 {
-	renderWindow.updateWindow(shaderManager, barChart);
+	renderWindow.clearWindow();
+	barChart.draw();
+	renderWindow.updateWindow();
 }
 
 void UnsortedState::handleEvent(SDL_Event& event)
