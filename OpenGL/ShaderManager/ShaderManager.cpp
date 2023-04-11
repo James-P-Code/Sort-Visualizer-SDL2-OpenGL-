@@ -107,12 +107,12 @@ void ShaderManager::updateVertexBuffer(const std::pair<size_t, size_t>& indexOfS
 	
 	if (indexOfSwap.second == indexOfSwap.first + verticesPerRectangle) // if we're updating one continuous range we only need 1 glBufferSubData call
 	{
-		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.first * sizeof(glm::vec2), (verticesPerRectangle * 2) * sizeof(glm::vec2), glm::value_ptr(rectangleVertices.at(indexOfSwap.first)));
+		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.first * sizeof(glm::vec2), (verticesPerRectangle * 2) * sizeof(glm::vec2), &rectangleVertices.at(indexOfSwap.first));
 	}
 	else
 	{
-		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.first * sizeof(glm::vec2), verticesPerRectangle * sizeof(glm::vec2), glm::value_ptr(rectangleVertices.at(indexOfSwap.first)));
-		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.second * sizeof(glm::vec2), verticesPerRectangle * sizeof(glm::vec2), glm::value_ptr(rectangleVertices.at(indexOfSwap.second)));
+		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.first * sizeof(glm::vec2), verticesPerRectangle * sizeof(glm::vec2), &rectangleVertices.at(indexOfSwap.first));
+		glBufferSubData(GL_ARRAY_BUFFER, indexOfSwap.second * sizeof(glm::vec2), verticesPerRectangle * sizeof(glm::vec2), &rectangleVertices.at(indexOfSwap.second));
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -121,6 +121,6 @@ void ShaderManager::updateVertexBuffer(const std::pair<size_t, size_t>& indexOfS
 void ShaderManager::updateVertexBuffer(const size_t indexOfUpdate, const std::vector<glm::vec2>& rectangleVertices) const
 {
 	glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
-	glBufferSubData(GL_ARRAY_BUFFER, indexOfUpdate * sizeof(glm::vec2), 2 * sizeof(glm::vec2), glm::value_ptr(rectangleVertices.at(indexOfUpdate)));
+	glBufferSubData(GL_ARRAY_BUFFER, indexOfUpdate * sizeof(glm::vec2), 2 * sizeof(glm::vec2), &rectangleVertices.at(indexOfUpdate));
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
