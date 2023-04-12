@@ -56,7 +56,7 @@ BarChart::BarChart() :rectangleToHighlight(0)
     }
 
     shader.loadFromFile("barchart.vert", "barchart.frag");
-    shader.createBuffers(rectangleVertices, vertexColors, &vertexIndices);
+    shader.createBuffers(GL_DYNAMIC_DRAW, rectangleVertices, vertexColors, vertexIndices);
     shaderHighlightUniformLocation = glGetUniformLocation(shader.getProgramID(), "highlightVertexID");
 }
 

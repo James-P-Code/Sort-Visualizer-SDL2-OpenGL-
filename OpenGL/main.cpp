@@ -1,6 +1,9 @@
 #include <SDL.h>
 #include "ProgramManager/ProgramManager.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 int main(int argc, char* argv[])
 {
 	constexpr int maxFPS = 144;

@@ -51,6 +51,9 @@
     <ClCompile Include="RenderObject\RenderObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Background\Background.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SDLSubSystem\SDLSubSystem.h">
@@ -95,6 +98,9 @@
     <ClInclude Include="RenderObject\RenderObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Background\Background.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="barchart.vert">
@@ -103,5 +109,7 @@
     <None Include="barchart.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="background.vert" />
+    <None Include="background.frag" />
   </ItemGroup>
 </Project>

@@ -17,8 +17,8 @@ RenderWindow::RenderWindow()
 	glewExperimental = GL_TRUE;
 	glewInit();
 	SDL_GL_SetSwapInterval(1);
-	glEnable(GL_CULL_FACE);
-	glFrontFace(GL_CW);
+	//glEnable(GL_CULL_FACE);
+	//glFrontFace(GL_CW);
 }
 
 void RenderWindow::clearWindow() const

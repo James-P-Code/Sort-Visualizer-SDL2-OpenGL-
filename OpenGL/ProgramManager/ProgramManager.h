@@ -3,6 +3,7 @@
 #include <vector>
 #include "../RenderWindow/RenderWindow.h"
 #include "../BarChart/BarChart.h"
+#include "../Background/Background.h"
 #include "../ProgramState/UnsortedState.h"
 #include "../ProgramState/SortingState.h"
 
@@ -19,6 +20,7 @@ public:
 private:
 	RenderWindow renderWindow;
 	BarChart barChart;
+	Background background;
 	std::vector<RenderObject*> renderObjects;
 	std::unique_ptr<ProgramState> currentState;
 };

@@ -122,7 +122,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>E:\GLM\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\stb-image;E:\GLM\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Background\Background.cpp" />
     <ClCompile Include="BarChart\BarChart.cpp" />
     <ClCompile Include="RenderObject\RenderObject.cpp" />
     <ClCompile Include="SortAlgorithm\InsertionSort.cpp" />
@@ -157,10 +159,13 @@
     <ClCompile Include="RenderWindow\RenderWindow.cpp" />
     <ClCompile Include="Shader\Shader.cpp" />
     <ClCompile Include="ProgramState\UnsortedState.cpp" />
-    <ClCompile Include="ProgramState\SortingState.cpp" />
+    <ClCompile Include="ProgramState\SortingState.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">E:\stb-image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="SortAlgorithm\SortAlgorithm.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Background\Background.h" />
     <ClInclude Include="BarChart\BarChart.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="RenderObject\RenderObject.h" />
@@ -177,6 +182,8 @@
     <ClInclude Include="SortAlgorithm\SortAlgorithm.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="background.frag" />
+    <None Include="background.vert" />
     <None Include="barchart.frag" />
     <None Include="barchart.vert" />
   </ItemGroup>
