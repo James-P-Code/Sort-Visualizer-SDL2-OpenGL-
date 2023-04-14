@@ -7,7 +7,9 @@ Background::Background()
 	std::vector<glm::u8vec3> vertexColors;
 	std::vector<GLubyte> vertexIndices;
 	std::vector<glm::vec2> textureCoordinates;
-	int imageWidth, imageHeight, nrChannels;
+	int imageWidth, imageHeight, imageChannels;
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* imageData = stbi_load("background.jpg", &imageWidth, &imageHeight, &imageChannels, 0);
 
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -15,8 +17,6 @@ Background::Background()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	imageData = stbi_load("background.jpg", &imageWidth, &imageHeight, &nrChannels, 0);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -49,7 +49,7 @@ Background::Background()
 	shader.createBuffers(GL_STATIC_DRAW, vertexPositions, vertexColors, vertexIndices, &textureCoordinates);
 }
 
-void Background::draw() const
+void Background::draw()
 {
 	glUseProgram(shader.getProgramID());
 	glBindTexture(GL_TEXTURE_2D, texture);

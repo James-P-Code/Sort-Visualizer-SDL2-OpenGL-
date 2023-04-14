@@ -7,10 +7,9 @@ class Background : public RenderObject
 {
 public:
 	Background();
-	void draw() const override;
+	void draw() override;
 
 private:
-	unsigned char* imageData;
 	GLuint texture;
 };
 

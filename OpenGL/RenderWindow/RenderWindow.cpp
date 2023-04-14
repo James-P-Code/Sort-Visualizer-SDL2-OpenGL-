@@ -17,13 +17,13 @@ RenderWindow::RenderWindow()
 	glewExperimental = GL_TRUE;
 	glewInit();
 	SDL_GL_SetSwapInterval(1);
-	//glEnable(GL_CULL_FACE);
-	//glFrontFace(GL_CW);
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 void RenderWindow::clearWindow() const
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
 

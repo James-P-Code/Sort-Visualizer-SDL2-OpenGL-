@@ -14,7 +14,7 @@ class BarChart final : public RenderObject
 {
 public:
 	BarChart();
-	void draw() const override;
+	void draw() override;
 	const std::vector<glm::vec2>& getRectangleVertices() const;
 	const std::vector<glm::u8vec3>& getVertexColors() const;
 	const std::vector<GLushort>& getIndices() const;
