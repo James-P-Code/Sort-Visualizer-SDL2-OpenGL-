@@ -11,15 +11,16 @@ Background::Background()
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* imageData = stbi_load("background.jpg", &imageWidth, &imageHeight, &imageChannels, 0);
 
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glCreateTextures(GL_TEXTURE_2D, 1, &texture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTextureStorage2D(texture, 1, GL_RGB8, imageWidth, imageHeight);
+	glTextureSubImage2D(texture, 0, 0, 0, imageWidth, imageHeight, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+	glGenerateTextureMipmap(texture);
 
 	stbi_image_free(imageData);
 
@@ -46,13 +47,14 @@ Background::Background()
 	textureCoordinates.push_back(glm::vec2(0.0f, 0.0f));
 
 	shader.loadFromFile("background.vert", "background.frag");
-	shader.createBuffers(GL_STATIC_DRAW, vertexPositions, vertexColors, vertexIndices, &textureCoordinates);
+	shader.createSingleBuffer(vertexPositions, vertexColors, vertexIndices, textureCoordinates);
 }
 
 void Background::draw()
 {
 	glUseProgram(shader.getProgramID());
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTextureUnit(0, texture);
 	glBindVertexArray(shader.getVertexArrayObject());
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
+	glBindVertexArray(0);
 }

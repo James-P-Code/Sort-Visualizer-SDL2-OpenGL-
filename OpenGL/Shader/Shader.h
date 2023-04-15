@@ -25,22 +25,26 @@ public:
 										     const std::vector<glm::u8vec3>& vertexColors, 
 								             const std::vector<T>& vertexIndices,
 									         const std::vector<glm::vec2>* textureCoordinates = nullptr);
-	void createPersistentBuffer(const std::vector<glm::vec2>&, const std::vector<glm::u8vec3>&, const std::vector<GLushort>&);
-	void createBufferNew(const std::vector<glm::vec2>&, const std::vector<glm::u8vec3>&, const std::vector<GLushort>&);
+	void createPersistentMappedBuffer(const std::vector<glm::vec2>&, const std::vector<glm::u8vec3>&, const std::vector<GLushort>&);
+	void createMultipleBuffers(const std::vector<glm::vec2>&, const std::vector<glm::u8vec3>&, const std::vector<GLushort>&);
+	void createSingleBuffer(const std::vector<glm::vec2>&, const std::vector<glm::u8vec3>&, const std::vector<GLubyte>&, const std::vector<glm::vec2>&);
 	void waitBuffer();
 	void lockBuffer();
+	const size_t getBufferStart() const;
+	void updateBufferStart();
 
 private:
+	static constexpr int persistentBufferSize = 3;
 	GLuint programID, positionsVBO, colorsVBO, textureCoordinatesVBO, vertexArrayObject, elementBufferObject;
-	glm::vec2* vertexBufferPtr = nullptr;
+	glm::vec2* vertexBufferData = nullptr;
 
 	struct BufferRange
 	{
 		size_t startIndex = 0;
-		GLsync sync = 0;
+		GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 	};
 
-	BufferRange syncRanges[3];
+	BufferRange bufferRanges[3];
 	size_t syncRangeIndex = 0;
 
 	GLuint compileShader(const GLenum& shaderType, const std::string& shaderSource) const;
