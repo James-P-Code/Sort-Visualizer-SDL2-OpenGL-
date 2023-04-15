@@ -47,14 +47,14 @@ Background::Background()
 	textureCoordinates.push_back(glm::vec2(0.0f, 0.0f));
 
 	shader.loadFromFile("background.vert", "background.frag");
-	shader.createSingleBuffer(vertexPositions, vertexColors, vertexIndices, textureCoordinates);
+	buffer.createSingleBuffer(vertexPositions, vertexColors, vertexIndices, textureCoordinates);
 }
 
 void Background::draw()
 {
-	glUseProgram(shader.getProgramID());
+	shader.useProgram();
 	glBindTextureUnit(0, texture);
-	glBindVertexArray(shader.getVertexArrayObject());
+	glBindVertexArray(buffer.getVertexArray());
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
 	glBindVertexArray(0);
 }

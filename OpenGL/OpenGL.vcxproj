@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="Background\Background.cpp" />
     <ClCompile Include="BarChart\BarChart.cpp" />
+    <ClCompile Include="Buffer\Buffer.cpp" />
     <ClCompile Include="RenderObject\RenderObject.cpp" />
     <ClCompile Include="SortAlgorithm\InsertionSort.cpp" />
     <ClCompile Include="SortAlgorithm\SelectionSort.cpp" />
@@ -167,6 +168,7 @@
   <ItemGroup>
     <ClInclude Include="Background\Background.h" />
     <ClInclude Include="BarChart\BarChart.h" />
+    <ClInclude Include="Buffer\Buffer.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="RenderObject\RenderObject.h" />
     <ClInclude Include="SortAlgorithm\InsertionSort.h" />

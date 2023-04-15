@@ -1,5 +1,6 @@
 #pragma once
 #include "../Shader/Shader.h"
+#include "../Buffer/Buffer.h"
 
 class RenderObject
 {
@@ -8,4 +9,5 @@ public:
 
 protected:
 	Shader shader;
+	Buffer buffer;
 };

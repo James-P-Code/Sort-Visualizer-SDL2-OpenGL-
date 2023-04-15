@@ -2,7 +2,7 @@
 
 ProgramManager::ProgramManager() : currentState(std::make_unique<UnsortedState>())
 {
-	//renderObjects.push_back(&background);
+	renderObjects.push_back(&background);
 	renderObjects.push_back(&barChart);
 }
 

@@ -2,11 +2,11 @@
 
 BarChart::BarChart() :rectangleToHighlight(0)
 {
- //   glm::mat4 projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
     constexpr size_t topRightVertexIndexOffset = 1, bottomRightVertexIndexOffset = 2, bottomLeftVertexIndexOffset = 3;
     constexpr GLfloat rectangleWidth = 2.0f / numberOfRectangles; // OpenGL render coordinates are -1 to 1, so this will give the appropriate width for the rectangles
     constexpr GLfloat windowBottomCoordinate = -1.0f; // same as the rectangle width, the render coordinates are -1 to 1, where -1 is the bottom of the render area
     constexpr float byteMultiplier = 255.0f;
+    constexpr int bufferSize = 3;
     GLfloat xPosition = -1.0f;
     GLfloat topLeftColorR = 0.31f, topLeftColorG = 0.55f, topLeftColorB = 0.91f;
     GLfloat topRightColorR = 0.00f, topRightColorG = 0.37f, topRightColorB = 0.96f;
@@ -49,9 +49,10 @@ BarChart::BarChart() :rectangleToHighlight(0)
     // RGB color values for each corner vertex
     // the use of std::round is based on https://stackoverflow.com/questions/1914115/converting-color-value-from-float-0-1-to-byte-0-255
     // OpenGL uses floats in the range of 0.0 - 1.0 for color values, but we can store them as unsigned bytes.
-    for (int i = 0; i < 3; ++i)
+    // Because we will use a triple buffer we need 3 sets of the same colors
+    for (int i = 0; i < bufferSize; ++i)
     {
-        for (size_t j = 0; j < numberOfRectangles; ++j)
+        for (int j = 0; j < numberOfRectangles; ++j)
         {
             vertexColors.push_back(glm::u8vec3(std::round(topLeftColorR * byteMultiplier), std::round(topLeftColorG * byteMultiplier), std::round(topLeftColorB * byteMultiplier)));
             vertexColors.push_back(glm::u8vec3(std::round(topRightColorR * byteMultiplier), std::round(topRightColorG * byteMultiplier), std::round(topRightColorB * byteMultiplier)));
@@ -64,28 +65,19 @@ BarChart::BarChart() :rectangleToHighlight(0)
     }
 
     shader.loadFromFile("barchart.vert", "barchart.frag");
- //   shader.createMultipleBuffers(rectangleVertices, vertexColors, vertexIndices);
- //   shader.createBuffers(GL_DYNAMIC_DRAW, rectangleVertices, vertexColors, vertexIndices);
-    shader.createPersistentMappedBuffer(rectangleVertices, vertexColors, vertexIndices);
     shaderHighlightUniformLocation = glGetUniformLocation(shader.getProgramID(), "highlightVertexID");
+    buffer.createPersistentMappedBuffer(rectangleVertices, vertexColors, vertexIndices);
 }
 
 void BarChart::draw()
 {
-    std::pair<size_t, size_t> test{ 0, 0 };
-    shader.updateVertexBuffer(test, rectangleVertices);
-    glUseProgram(shader.getProgramID());
-    glUniform1i(shaderHighlightUniformLocation, rectangleToHighlight + shader.getBufferStart());
-    glBindVertexArray(shader.getVertexArrayObject());
-  //  shader.waitBuffer();
-   // glDrawArrays(GL_TRIANGLE_STRIP, 400, 400);
-    glDrawElementsBaseVertex(GL_TRIANGLES, vertexIndices.size(), GL_UNSIGNED_SHORT, 0, shader.getBufferStart());
-//    glDrawElements(GL_TRIANGLES, vertexIndices.size(), GL_UNSIGNED_SHORT, 0);
+    buffer.update(rectangleVertices);
+    shader.useProgram();
+    glUniform1i(shaderHighlightUniformLocation, rectangleToHighlight + buffer.getBufferDataStartIndex());
+    glBindVertexArray(buffer.getVertexArray());
+    glDrawElementsBaseVertex(GL_TRIANGLES, vertexIndices.size(), GL_UNSIGNED_SHORT, 0, buffer.getBufferDataStartIndex());
     glBindVertexArray(0);
-    shader.lockBuffer();
-    shader.updateBufferStart();
-
- //   SDL_Delay(300);
+    buffer.lock();
 }
 
 const std::vector<glm::vec2>& BarChart::getRectangleVertices() const
@@ -106,15 +98,10 @@ const std::vector<GLushort>& BarChart::getIndices() const
 // Swaps the vertices of 2 rectangles, given the starting index of each rectangle
 void BarChart::swapRectangles(const std::pair<size_t, size_t>& indexOfSwap)
 {
-    std::pair<size_t, size_t> test{ 0, 0 };
-    shader.updateVertexBuffer(test, rectangleVertices);
-
     constexpr size_t topRightOffset = 1;
 
     std::swap(rectangleVertices.at(indexOfSwap.first).y, rectangleVertices.at(indexOfSwap.second).y);
     std::swap(rectangleVertices.at(indexOfSwap.first + topRightOffset).y, rectangleVertices.at(indexOfSwap.second + topRightOffset).y);
-
-    shader.updateVertexBuffer(indexOfSwap, rectangleVertices);
 }
 
 // normalize a number to be within the range of the OpenGL render coordinates (-1 to 1)
@@ -132,8 +119,6 @@ void BarChart::updateRectangle(const size_t indexOfUpdate, const glm::vec2& newV
 {
     rectangleVertices.at(indexOfUpdate).y = newValue.y;
     rectangleVertices.at(indexOfUpdate + 1).y = newValue.y;
-
-    shader.updateVertexBuffer(indexOfUpdate, rectangleVertices);
 }
 
 void BarChart::setRectangleToHighlight(const int rectangleToHighlight)

@@ -27,6 +27,7 @@ private:
 	std::vector<glm::u8vec3> vertexColors;
 	std::vector<GLushort> vertexIndices; // the indices used for the element buffer
 	int rectangleToHighlight, shaderHighlightUniformLocation;
+	int drawIndex = 0;
 
 	const GLfloat normalize(const float& numberToNormalize) const;
 };
