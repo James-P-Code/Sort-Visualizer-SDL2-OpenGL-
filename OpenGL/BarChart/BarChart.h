@@ -3,6 +3,8 @@
 #include <SDL.h>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <array>
 #include <vector>
 #include <algorithm>
@@ -15,7 +17,7 @@ class BarChart final : public RenderObject
 public:
 	BarChart();
 	void draw() override;
-	const std::vector<glm::vec2>& getRectangleVertices() const;
+	const std::vector<glm::vec2>& getVertexPositions() const;
 	const std::vector<glm::u8vec3>& getVertexColors() const;
 	const std::vector<GLushort>& getIndices() const;
 	void swapRectangles(const std::pair<size_t, size_t>& indexOfSwap);
@@ -23,11 +25,18 @@ public:
 	void setRectangleToHighlight(const int);
 
 private:
-	std::vector<glm::vec2> rectangleVertices;
+	const glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight), 0.0f, -1.0f, 1.0f);
+	VertexBuffer barChartVertexBuffer;
+	Shader barChartShader;
+	Shader highlightShader;
+	VertexBuffer screenSpaceVertexBuffer;
+	Shader screenSpaceShader;
+	std::vector<glm::vec2> vertexPositions;
 	std::vector<glm::u8vec3> vertexColors;
 	std::vector<GLushort> vertexIndices; // the indices used for the element buffer
 	int rectangleToHighlight, shaderHighlightUniformLocation;
-	int drawIndex = 0;
+	int barChartProjectionLoc;
+	int barChartModelLoc;
 
 	const GLfloat normalize(const float& numberToNormalize) const;
 };

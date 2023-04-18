@@ -54,7 +54,10 @@
     <ClCompile Include="Background\Background.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Buffer\Buffer.cpp">
+    <ClCompile Include="VertexBuffer\VertexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBuffer\FrameBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -104,7 +107,10 @@
     <ClInclude Include="Background\Background.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Buffer\Buffer.h">
+    <ClInclude Include="VertexBuffer\VertexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBuffer\FrameBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -117,5 +123,9 @@
     </None>
     <None Include="background.vert" />
     <None Include="background.frag" />
+    <None Include="screenspace.vert" />
+    <None Include="screenspace.frag" />
+    <None Include="highlight.vert" />
+    <None Include="highlight.frag" />
   </ItemGroup>
 </Project>

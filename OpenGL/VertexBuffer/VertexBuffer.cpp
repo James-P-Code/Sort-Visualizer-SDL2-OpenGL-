@@ -1,13 +1,14 @@
-#include "Buffer.h"
+#include "VertexBuffer.h"
 
-Buffer::Buffer() : positionsVBO(0),
+VertexBuffer::VertexBuffer() : positionsVBO(0),
 				   colorsVBO(0),
 				   textureCoordinatesVBO(0),
 				   indicesEBO(0),
 				   vertexArray(0),
-				   syncRangeIndex(0) {}
+				   syncRangeIndex(0),
+				   vertexBufferData(nullptr) {}
 
-Buffer::~Buffer()
+VertexBuffer::~VertexBuffer()
 {
 	glUnmapNamedBuffer(positionsVBO);
 	glUnmapNamedBuffer(colorsVBO);
@@ -20,7 +21,7 @@ Buffer::~Buffer()
 	glDeleteVertexArrays(1, &vertexArray);
 }
 
-void Buffer::createSingleBuffer(const std::vector<glm::vec2>& vertexPositions,
+void VertexBuffer::createSingleBuffer(const std::vector<glm::vec2>& vertexPositions,
 								const std::vector<glm::u8vec3>& vertexColors,
 								const std::vector<GLubyte>& vertexIndices,
 								const std::vector<glm::vec2>& textureCoordinates)
@@ -58,13 +59,13 @@ void Buffer::createSingleBuffer(const std::vector<glm::vec2>& vertexPositions,
 	glVertexArrayAttribBinding(vertexArray, textureCoordinatesLayoutIndex, textureCoordinatesBindingIndex);
 }
 
-void Buffer::createPersistentMappedBuffer(const std::vector<glm::vec2>& vertexPositions, const std::vector<glm::u8vec3>& vertexColors, const std::vector<GLushort>& vertexIndices)
+void VertexBuffer::createPersistentMappedBuffer(const std::vector<glm::vec2>& vertexPositions, const std::vector<glm::u8vec3>& vertexColors, const std::vector<GLushort>& vertexIndices)
 {
 	constexpr size_t firstBuffer = 0, secondBuffer = 1, thirdBuffer = 2;
 	constexpr GLuint positionBindingIndex = 0, colorBindingIndex = 1;
 	constexpr GLuint positionLayoutIndex = 0, colorLayoutIndex = 1;
 	constexpr int tripleBuffer = 3;
-	GLsizeiptr bufferSize = numberOfRectangles * verticesPerRectangle * sizeof(glm::vec2) * tripleBuffer;
+	constexpr GLsizeiptr bufferSize = numberOfRectangles * verticesPerRectangle * sizeof(glm::vec2) * tripleBuffer;
 
 	// create vertex buffer for the positions of the vertices
 	glCreateBuffers(1, &positionsVBO);
@@ -104,34 +105,60 @@ void Buffer::createPersistentMappedBuffer(const std::vector<glm::vec2>& vertexPo
 	glVertexArrayAttribBinding(vertexArray, colorLayoutIndex, colorBindingIndex);
 }
 
-const GLuint& Buffer::getVertexArray() const
+void VertexBuffer::createScreenSpaceBuffer(const std::vector<glm::vec2>& vertexPositions, const std::vector<glm::vec2>& textureCoordinates, const std::vector<GLubyte>& vertexIndices)
+{
+	glCreateBuffers(1, &positionsVBO);
+	glNamedBufferStorage(positionsVBO, vertexPositions.size() * sizeof(glm::vec2), vertexPositions.data(), GL_MAP_READ_BIT);
+
+	glCreateBuffers(1, &textureCoordinatesVBO);
+	glNamedBufferStorage(textureCoordinatesVBO, textureCoordinates.size() * sizeof(glm::vec2), textureCoordinates.data(), GL_MAP_READ_BIT);
+
+	glCreateBuffers(1, &indicesEBO);
+	glNamedBufferStorage(indicesEBO, vertexIndices.size() * sizeof(GLubyte), vertexIndices.data(), GL_MAP_READ_BIT);
+
+	glCreateVertexArrays(1, &vertexArray);
+	glVertexArrayVertexBuffer(vertexArray, 0, positionsVBO, 0, sizeof(glm::vec2));
+	glVertexArrayVertexBuffer(vertexArray, 1, textureCoordinatesVBO, 0, sizeof(glm::vec2));
+	glVertexArrayElementBuffer(vertexArray, indicesEBO);
+
+	glEnableVertexArrayAttrib(vertexArray, 0);
+	glEnableVertexArrayAttrib(vertexArray, 1);
+
+	glVertexArrayAttribFormat(vertexArray, 0, glm::vec2::length(), GL_FLOAT, GL_FALSE, 0);
+	glVertexArrayAttribFormat(vertexArray, 1, glm::vec2::length(), GL_FLOAT, GL_FALSE, 0);
+
+	glVertexArrayAttribBinding(vertexArray, 0, 0);
+	glVertexArrayAttribBinding(vertexArray, 1, 1);
+}
+
+const GLuint& VertexBuffer::getVertexArray() const
 {
 	return vertexArray;
 }
 
-const size_t Buffer::getBufferDataStartIndex() const
+const size_t VertexBuffer::getBufferDataStartIndex() const
 {
 	return bufferRanges[syncRangeIndex].startIndex;
 }
 
-void Buffer::update(const std::vector<glm::vec2>& rectangleVertices)
+void VertexBuffer::update(const std::vector<glm::vec2>& rectangleVertices)
 {
 	wait();
 
 	for (size_t i = 0; i != rectangleVertices.size(); ++i)
 	{
-		vertexBufferData[i + bufferRanges[syncRangeIndex].startIndex] = rectangleVertices.at(i);
+		vertexBufferData[bufferRanges[syncRangeIndex].startIndex + i] = rectangleVertices.at(i);
 	}
 }
 
-void Buffer::lock()
+void VertexBuffer::lock()
 {
 	glDeleteSync(bufferRanges[syncRangeIndex].sync);
 	bufferRanges[syncRangeIndex].sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 	syncRangeIndex = ++syncRangeIndex % persistentBufferSize;
 }
 
-void Buffer::wait()
+void VertexBuffer::wait()
 {
 	GLenum waitReturn = glClientWaitSync(bufferRanges[syncRangeIndex].sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
 	while (waitReturn != GL_ALREADY_SIGNALED && waitReturn != GL_CONDITION_SATISFIED)

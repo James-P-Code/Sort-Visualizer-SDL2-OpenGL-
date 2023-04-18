@@ -24,7 +24,7 @@ RenderWindow::RenderWindow()
 
 void RenderWindow::clearWindow() const
 {
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+//	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
 
 void RenderWindow::updateWindow() const

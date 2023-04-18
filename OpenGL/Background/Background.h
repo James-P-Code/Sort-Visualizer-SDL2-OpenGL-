@@ -11,5 +11,7 @@ public:
 
 private:
 	GLuint texture;
+	VertexBuffer backgroundImageVertexBuffer;
+	Shader backgroundImageShader;
 };
 

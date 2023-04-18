@@ -41,18 +41,28 @@ const GLuint& Shader::getProgramID() const
 	return programID;
 }
 
+void Shader::useProgram() const
+{
+	glUseProgram(programID);
+}
+
 GLuint Shader::compileShader(const GLenum& shaderType, const std::string& shaderSource) const
 {
+	constexpr GLsizei infoSize = 512;
+	char infoLog[infoSize];
+	GLint compilationSuccess;
 	GLuint shaderID = glCreateShader(shaderType);
 	const char* sourceToCompile = shaderSource.c_str();
 
 	glShaderSource(shaderID, 1, &sourceToCompile, nullptr);
 	glCompileShader(shaderID);
 
-	return shaderID;
-}
+	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compilationSuccess);
+	if (!compilationSuccess)
+	{
+		glGetProgramInfoLog(shaderID, infoSize, NULL, infoLog);
+		std::cout << "Shader Compilation Error!\n" << infoLog << '\n';
+	}
 
-void Shader::useProgram() const
-{
-	glUseProgram(programID);
+	return shaderID;
 }

@@ -46,15 +46,15 @@ Background::Background()
 	textureCoordinates.push_back(glm::vec2(1.0f, 0.0f));
 	textureCoordinates.push_back(glm::vec2(0.0f, 0.0f));
 
-	shader.loadFromFile("background.vert", "background.frag");
-	buffer.createSingleBuffer(vertexPositions, vertexColors, vertexIndices, textureCoordinates);
+	backgroundImageShader.loadFromFile("background.vert", "background.frag");
+	backgroundImageVertexBuffer.createSingleBuffer(vertexPositions, vertexColors, vertexIndices, textureCoordinates);
 }
 
 void Background::draw()
 {
-	shader.useProgram();
+	backgroundImageShader.useProgram();
 	glBindTextureUnit(0, texture);
-	glBindVertexArray(buffer.getVertexArray());
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
+	glBindVertexArray(backgroundImageVertexBuffer.getVertexArray());
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, nullptr);
 	glBindVertexArray(0);
 }

@@ -11,7 +11,7 @@ void BubbleSort::sort()
     {
         if (currentVertex < (numberOfRectangles * verticesPerRectangle) - (sortIterator * verticesPerRectangle) - verticesPerRectangle)
         {
-            if (barChart.getRectangleVertices().at(currentVertex).y > barChart.getRectangleVertices().at(currentVertex + verticesPerRectangle).y)
+            if (barChart.getVertexPositions().at(currentVertex).y < barChart.getVertexPositions().at(currentVertex + verticesPerRectangle).y)
             {
                 swapOccurred = true;
                 swapIndices.first = currentVertex;
