@@ -21,7 +21,7 @@ void InsertionSort::sort()
 			newIteration = false;
 		}
 
-		if (currentVertex >= 0 && barChart.getVertexPositions().at(currentVertex).y > keyVertex.y)
+		if (currentVertex >= 0 && barChart.getVertexPositions().at(currentVertex).y < keyVertex.y)
 		{
 			swapIndices.first = currentVertex + verticesPerRectangle;
 			swapIndices.second = currentVertex;
@@ -30,7 +30,7 @@ void InsertionSort::sort()
 			currentVertex == 0 ? resetCurrentVertex = true : currentVertex -= verticesPerRectangle;
 		}
 
-		if (resetCurrentVertex || barChart.getVertexPositions().at(currentVertex).y < keyVertex.y)
+		if (resetCurrentVertex || barChart.getVertexPositions().at(currentVertex).y > keyVertex.y)
 		{
 			resetCurrentVertex ? currentVertex = 0 : currentVertex += verticesPerRectangle;
 			barChart.updateRectangle(currentVertex, keyVertex);

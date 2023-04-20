@@ -3,14 +3,10 @@
 BarChart::BarChart() :rectangleToHighlight(0)
 {
     constexpr size_t topRightVertexIndexOffset = 1, bottomRightVertexIndexOffset = 2, bottomLeftVertexIndexOffset = 3;
- //   constexpr GLfloat rectangleWidth = 2.0f / numberOfRectangles; // OpenGL render coordinates are -1 to 1, so this will give the appropriate width for the rectangles
-    constexpr int rectangleWidth = windowWidth / numberOfRectangles;
-  //  constexpr GLfloat windowBottomCoordinate = -1.0f; // same as the rectangle width, the render coordinates are -1 to 1, where -1 is the bottom of the render area
-    constexpr GLfloat windowBottomCoordinate = 800.0f;
+    constexpr GLfloat windowBottomCoordinate = 600.0f;
     constexpr float byteMultiplier = 255.0f;
     constexpr int bufferSize = 3;
     GLfloat xPosition = 0.0f;
-  //  GLfloat xPosition = -1.0f;
     GLfloat topLeftColorR = 0.31f, topLeftColorG = 0.55f, topLeftColorB = 0.91f;
     GLfloat topRightColorR = 0.00f, topRightColorG = 0.37f, topRightColorB = 0.96f;
     GLfloat bottomRightColorR = 0.09f, bottomRightColorG = 0.22f, bottomRightColorB = 0.44f;
@@ -29,7 +25,6 @@ BarChart::BarChart() :rectangleToHighlight(0)
     for (int i = 0; i < numberOfRectangles; ++i)
     {
           height.at(i) = normalize(static_cast<float>(i));
-     //   height.at(i) = static_cast<float>(i);
     }
 
     std::shuffle(std::begin(height), std::end(height), randomSeed);
@@ -38,8 +33,8 @@ BarChart::BarChart() :rectangleToHighlight(0)
     {
         vertexPositions.push_back(glm::vec2(xPosition, height.at(i))); // top left
         vertexPositions.push_back(glm::vec2(xPosition + rectangleWidth, height.at(i))); // top right
-        vertexPositions.push_back(glm::vec2(xPosition + rectangleWidth, windowBottomCoordinate)); // bottom right
-        vertexPositions.push_back(glm::vec2(xPosition, windowBottomCoordinate)); // bottom left
+        vertexPositions.push_back(glm::vec2(xPosition + rectangleWidth, windowHeight)); // bottom right
+        vertexPositions.push_back(glm::vec2(xPosition, windowHeight)); // bottom left
 
         // Indices used by the element buffer object
         vertexIndices.push_back(static_cast<GLushort>(vertexIndex));
@@ -72,13 +67,16 @@ BarChart::BarChart() :rectangleToHighlight(0)
     }
 
     barChartShader.loadFromFile("barchart.vert", "barchart.frag");
-    shaderHighlightUniformLocation = glGetUniformLocation(barChartShader.getProgramID(), "highlightVertexID");
+    barChartHighlightUniformLocation = glGetUniformLocation(barChartShader.getProgramID(), "highlightVertexID");
+    barChartModelUniformLocation = glGetUniformLocation(barChartShader.getProgramID(), "model");
+    barChartProjectionUniformLocation = glGetUniformLocation(barChartShader.getProgramID(), "projection");
+
     barChartVertexBuffer.createPersistentMappedBuffer(vertexPositions, vertexColors, vertexIndices);
 
-    barChartProjectionLoc = glGetUniformLocation(barChartShader.getProgramID(), "projection");
-    barChartModelLoc = glGetUniformLocation(barChartShader.getProgramID(), "model");
-
     highlightShader.loadFromFile("highlight.vert", "highlight.frag");
+    highlightModelUniformLocation = glGetUniformLocation(highlightShader.getProgramID(), "model");
+    highlightProjectionUniformLocation = glGetUniformLocation(highlightShader.getProgramID(), "projection");
+    highlightTimeUniformLocation = glGetUniformLocation(highlightShader.getProgramID(), "time");
 
     screenSpaceFrameBufferVertices.push_back(glm::vec2(-1.0f, 1.0f));
     screenSpaceFrameBufferVertices.push_back(glm::vec2(1.0f, 1.0f));
@@ -105,70 +103,35 @@ BarChart::BarChart() :rectangleToHighlight(0)
 
 void BarChart::draw()
 {
-
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 highlightRectangleMatrix = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
- //   highlightRectangleMatrix = glm::translate(highlightRectangleMatrix, glm::vec3((rectangleToHighlight / 4) * 6.0f, 800.0f, 0.0f));
-
-  //  int projectionShaderLoc = glGetUniformLocation(highlightShader.getProgramID(), "projection");
-  //  int highlightShaderLoc = glGetUniformLocation(highlightShader.getProgramID(), "highlightRectangleMatrix");
-    float scaleFactor = 1.3f;
-
- //   glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.getFrameBuffer());
- //   glEnable(GL_DEPTH_TEST);
-
+    time = SDL_GetTicks();
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-  //  glStencilMask(0x00);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     barChartVertexBuffer.update(vertexPositions);
     barChartShader.useProgram();
-    glUniformMatrix4fv(barChartModelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(barChartProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(barChartProjectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(barChartModelUniformLocation, 1, GL_FALSE, glm::value_ptr(model));
     glBindVertexArray(barChartVertexBuffer.getVertexArray());
     glDrawElementsBaseVertex(GL_TRIANGLES, vertexIndices.size(), GL_UNSIGNED_SHORT, nullptr, barChartVertexBuffer.getBufferDataStartIndex());
+
+    glUniform1i(barChartHighlightUniformLocation, rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
+    glDrawElementsBaseVertex(GL_TRIANGLES, indicesPerRectangle, GL_UNSIGNED_SHORT, nullptr, rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
+
+    float scaleFactor = 2.0f;
+    glm::mat4 highlightModelMatrix = glm::mat4(1.0f);
+    highlightModelMatrix = glm::translate(highlightModelMatrix, glm::vec3(-vertexPositions.at(rectangleToHighlight) - (rectangleWidth * 0.5f), 0.0f));
+    highlightModelMatrix = glm::scale(highlightModelMatrix, glm::vec3(scaleFactor));
+
+    highlightShader.useProgram();
+    glUniformMatrix4fv(highlightProjectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(highlightModelUniformLocation, 1, GL_FALSE, glm::value_ptr(highlightModelMatrix));
+    glUniform1f(highlightTimeUniformLocation, static_cast<GLfloat>(time));
+    glDrawElementsBaseVertex(GL_TRIANGLES, indicesPerRectangle, GL_UNSIGNED_SHORT, nullptr, rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
+   
     glBindVertexArray(0);
     barChartVertexBuffer.lock();
 
-    /*
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0x00);
-    glDisable(GL_DEPTH_TEST);
-
-  //  glBindVertexArray(barChartVertexBuffer.getVertexArray());
-    glUniform1i(shaderHighlightUniformLocation, rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
-    glDrawElementsBaseVertex(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr, rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
-
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask(0x00);
-    glDisable(GL_DEPTH_TEST);
-    highlightShader.useProgram();
-
-    highlightRectangleMatrix = glm::translate(highlightRectangleMatrix, glm::vec3(6 * 0.5f, 1.0f, 0.0f));
-    highlightRectangleMatrix = glm::scale(highlightRectangleMatrix, glm::vec3(60000000, 400, 60000));
-    glUniformMatrix4fv(projectionShaderLoc, 1, GL_FALSE, &projection[0][0]);
-    glUniformMatrix4fv(highlightShaderLoc, 1, GL_FALSE, &highlightRectangleMatrix[0][0]);
-    glDrawElementsBaseVertex(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr, rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
-
-    glBindVertexArray(0);
-    glStencilMask(0xFF);
-    glStencilFunc(GL_ALWAYS, 0, 0xFF);
-    glEnable(GL_DEPTH_TEST);
-    */
-
- //   SDL_Delay(100);
-  //  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  //  glDisable(GL_DEPTH_TEST);
-    // clear all relevant buffers
-  //  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
- //   glClear(GL_COLOR_BUFFER_BIT);
-
-   // screenSpaceShader.useProgram();
-  //  glBindVertexArray(screenSpaceVertexBuffer.getVertexArray());
-  //  glBindTextureUnit(0, frameBuffer.getFrameBufferTexture());
-  //  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, nullptr);
+ //   SDL_Delay(50);
 }
 
 const std::vector<glm::vec2>& BarChart::getVertexPositions() const

@@ -12,14 +12,17 @@ out vec3 fragmentColor;
 
 void main()
 {
-    gl_Position = projection * model * vec4(vertexPosition.xy, 0.0, 1.0);
+    float zValue = 0.0f;
 
     if (highlightVertexID <= gl_VertexID && highlightVertexID + maxVertexOffset > gl_VertexID)
     {
        fragmentColor = vec3(0.08, 0.96, 0.19);
+       zValue = 0.2f;
     }
     else
     {
         fragmentColor = vertexColor;
     }
+
+    gl_Position = projection * model * vec4(vertexPosition, zValue, 1.0);
 }

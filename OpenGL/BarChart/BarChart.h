@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <array>
 #include <vector>
 #include <algorithm>
@@ -26,6 +27,7 @@ public:
 
 private:
 	const glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight), 0.0f, -1.0f, 1.0f);
+	glm::mat4 model = glm::mat4(1.0f); // the model matrix for the bar chart
 	VertexBuffer barChartVertexBuffer;
 	Shader barChartShader;
 	Shader highlightShader;
@@ -34,9 +36,10 @@ private:
 	std::vector<glm::vec2> vertexPositions;
 	std::vector<glm::u8vec3> vertexColors;
 	std::vector<GLushort> vertexIndices; // the indices used for the element buffer
-	int rectangleToHighlight, shaderHighlightUniformLocation;
-	int barChartProjectionLoc;
-	int barChartModelLoc;
+	int rectangleToHighlight; 
+	int barChartHighlightUniformLocation, barChartProjectionUniformLocation, barChartModelUniformLocation; // the locations of uniform variables of the bar chart shader
+	int highlightProjectionUniformLocation, highlightModelUniformLocation, highlightTimeUniformLocation;
+	Uint32 time = SDL_GetTicks();
 
 	const GLfloat normalize(const float& numberToNormalize) const;
 };

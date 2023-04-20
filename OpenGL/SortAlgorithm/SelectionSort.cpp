@@ -16,7 +16,7 @@ void SelectionSort::sort()
 
 		if (currentVertex < numberOfRectangles * verticesPerRectangle)
 		{
-			if (barChart.getVertexPositions().at(currentVertex).y < barChart.getVertexPositions().at(indexOfMinimum).y)
+			if (barChart.getVertexPositions().at(currentVertex).y > barChart.getVertexPositions().at(indexOfMinimum).y)
 			{
 				indexOfMinimum = currentVertex;
 			}
