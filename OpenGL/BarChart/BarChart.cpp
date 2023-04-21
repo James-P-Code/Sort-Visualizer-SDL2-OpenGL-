@@ -104,14 +104,12 @@ BarChart::BarChart() :rectangleToHighlight(0)
 void BarChart::draw()
 {
     time = SDL_GetTicks();
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glBindVertexArray(barChartVertexBuffer.getVertexArray());
     barChartVertexBuffer.update(vertexPositions);
     barChartShader.useProgram();
-    glUniformMatrix4fv(barChartProjectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
-    glUniformMatrix4fv(barChartModelUniformLocation, 1, GL_FALSE, glm::value_ptr(model));
-    glBindVertexArray(barChartVertexBuffer.getVertexArray());
+    glUniformMatrix4fv(barChartModelUniformLocation, 1, GL_FALSE, glm::value_ptr(barChartModelMatrix));
     glDrawElementsBaseVertex(GL_TRIANGLES, vertexIndices.size(), GL_UNSIGNED_SHORT, nullptr, barChartVertexBuffer.getBufferDataStartIndex());
 
     glUniform1i(barChartHighlightUniformLocation, rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
@@ -123,15 +121,12 @@ void BarChart::draw()
     highlightModelMatrix = glm::scale(highlightModelMatrix, glm::vec3(scaleFactor));
 
     highlightShader.useProgram();
-    glUniformMatrix4fv(highlightProjectionUniformLocation, 1, GL_FALSE, glm::value_ptr(projection));
     glUniformMatrix4fv(highlightModelUniformLocation, 1, GL_FALSE, glm::value_ptr(highlightModelMatrix));
     glUniform1f(highlightTimeUniformLocation, static_cast<GLfloat>(time));
     glDrawElementsBaseVertex(GL_TRIANGLES, indicesPerRectangle, GL_UNSIGNED_SHORT, nullptr, rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
    
     glBindVertexArray(0);
     barChartVertexBuffer.lock();
-
- //   SDL_Delay(50);
 }
 
 const std::vector<glm::vec2>& BarChart::getVertexPositions() const
@@ -158,15 +153,13 @@ void BarChart::swapRectangles(const std::pair<size_t, size_t>& indexOfSwap)
     std::swap(vertexPositions.at(indexOfSwap.first + topRightOffset).y, vertexPositions.at(indexOfSwap.second + topRightOffset).y);
 }
 
-// normalize a number to be within the range of the OpenGL render coordinates (-1 to 1)
+// normalize a number to be within the range of the minBarHeight and maxBarHeight values
 const GLfloat BarChart::normalize(const float& numberToNormalize) const
 {
     constexpr float minRange = 0.f;
     constexpr float maxRange = static_cast<float>(numberOfRectangles);
     constexpr float minBarHeight = 10.0f;
- //   constexpr float minBarHeight = -0.97f;
- //   constexpr float maxBarHeight = 1.0f;
-    constexpr float maxBarHeight = 600.0f;
+    constexpr float maxBarHeight = static_cast<float>(windowHeight);
 
     return (numberToNormalize - minRange) / (maxRange - minRange) * (maxBarHeight - minBarHeight) + minBarHeight;
 }

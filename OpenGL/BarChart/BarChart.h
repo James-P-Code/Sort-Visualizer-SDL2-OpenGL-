@@ -26,8 +26,7 @@ public:
 	void setRectangleToHighlight(const int);
 
 private:
-	const glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight), 0.0f, -1.0f, 1.0f);
-	glm::mat4 model = glm::mat4(1.0f); // the model matrix for the bar chart
+	glm::mat4 barChartModelMatrix = glm::mat4(1.0f); // the model matrix for the bar chart
 	VertexBuffer barChartVertexBuffer;
 	Shader barChartShader;
 	Shader highlightShader;
@@ -39,7 +38,7 @@ private:
 	int rectangleToHighlight; 
 	int barChartHighlightUniformLocation, barChartProjectionUniformLocation, barChartModelUniformLocation; // the locations of uniform variables of the bar chart shader
 	int highlightProjectionUniformLocation, highlightModelUniformLocation, highlightTimeUniformLocation;
-	Uint32 time = SDL_GetTicks();
+	Uint32 time;
 
 	const GLfloat normalize(const float& numberToNormalize) const;
 };

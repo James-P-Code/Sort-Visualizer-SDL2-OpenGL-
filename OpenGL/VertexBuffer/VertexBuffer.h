@@ -1,6 +1,7 @@
 #pragma once
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 #include "../Constants.h"
 
@@ -19,7 +20,7 @@ public:
 
 private:
 	static constexpr int persistentBufferSize = 3;
-	GLuint positionsVBO, colorsVBO, textureCoordinatesVBO, indicesEBO, vertexArray;
+	GLuint positionsVBO, colorsVBO, textureCoordinatesVBO, indicesEBO, uniformBuffer, vertexArray;
 	size_t syncRangeIndex;
 	glm::vec2* vertexBufferData;
 	struct BufferRange

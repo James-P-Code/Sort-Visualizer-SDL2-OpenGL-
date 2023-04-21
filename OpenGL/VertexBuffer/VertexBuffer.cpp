@@ -14,10 +14,12 @@ VertexBuffer::~VertexBuffer()
 	glUnmapNamedBuffer(colorsVBO);
 	glUnmapNamedBuffer(textureCoordinatesVBO);
 	glUnmapNamedBuffer(indicesEBO);
+	glUnmapNamedBuffer(uniformBuffer);
 	glDeleteBuffers(1, &positionsVBO);
 	glDeleteBuffers(1, &colorsVBO);
 	glDeleteBuffers(1, &textureCoordinatesVBO);
 	glDeleteBuffers(1, &indicesEBO);
+	glDeleteBuffers(1, &uniformBuffer);
 	glDeleteVertexArrays(1, &vertexArray);
 }
 
@@ -64,12 +66,14 @@ void VertexBuffer::createPersistentMappedBuffer(const std::vector<glm::vec2>& ve
 	constexpr size_t firstBuffer = 0, secondBuffer = 1, thirdBuffer = 2;
 	constexpr GLuint positionBindingIndex = 0, colorBindingIndex = 1;
 	constexpr GLuint positionLayoutIndex = 0, colorLayoutIndex = 1;
+	constexpr GLuint uniformBindingPoint = 0;
 	constexpr int tripleBuffer = 3;
 	constexpr GLsizeiptr bufferSize = numberOfRectangles * verticesPerRectangle * sizeof(glm::vec2) * tripleBuffer;
+	const glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight), 0.0f, -1.0f, 1.0f);
 
 	// create vertex buffer for the positions of the vertices
 	glCreateBuffers(1, &positionsVBO);
-	glNamedBufferStorage(positionsVBO, bufferSize, vertexPositions.data(), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	glNamedBufferStorage(positionsVBO, bufferSize, vertexPositions.data(), GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 	// map the buffer
 	vertexBufferData = (glm::vec2*)glMapNamedBufferRange(positionsVBO, 0, bufferSize, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 
@@ -89,6 +93,10 @@ void VertexBuffer::createPersistentMappedBuffer(const std::vector<glm::vec2>& ve
 
 	glCreateBuffers(1, &indicesEBO);
 	glNamedBufferStorage(indicesEBO, vertexIndices.size() * sizeof(GLushort), vertexIndices.data(), GL_MAP_READ_BIT);
+
+	glCreateBuffers(1, &uniformBuffer);
+	glNamedBufferStorage(uniformBuffer, sizeof(projection), &projection, GL_MAP_READ_BIT);
+	glBindBufferBase(GL_UNIFORM_BUFFER, uniformBindingPoint, uniformBuffer);
 
 	glCreateVertexArrays(1, &vertexArray);
 	glVertexArrayVertexBuffer(vertexArray, positionBindingIndex, positionsVBO, 0, sizeof(glm::vec2));

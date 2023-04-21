@@ -1,7 +1,11 @@
 #version 460 core
 layout (location = 0) in vec2 aPos;
 
-uniform mat4 projection;
+layout (std140, binding = 0) uniform projectionMatrix
+{
+    mat4 projection;
+};
+
 uniform mat4 model;
 
 void main()
