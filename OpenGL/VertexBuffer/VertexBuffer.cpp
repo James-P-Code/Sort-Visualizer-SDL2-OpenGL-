@@ -1,12 +1,13 @@
 #include "VertexBuffer.h"
 
 VertexBuffer::VertexBuffer() : positionsVBO(0),
-				   colorsVBO(0),
-				   textureCoordinatesVBO(0),
-				   indicesEBO(0),
-				   vertexArray(0),
-				   syncRangeIndex(0),
-				   vertexBufferData(nullptr) {}
+							   colorsVBO(0),
+							   textureCoordinatesVBO(0),
+							   indicesEBO(0),
+							   uniformBuffer(0),
+							   vertexArray(0),
+							   syncRangeIndex(0),
+							   vertexBufferData(nullptr) {}
 
 VertexBuffer::~VertexBuffer()
 {

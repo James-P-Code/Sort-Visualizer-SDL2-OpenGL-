@@ -127,5 +127,7 @@
     <None Include="screenspace.frag" />
     <None Include="highlight.vert" />
     <None Include="highlight.frag" />
+    <None Include="blur.vert" />
+    <None Include="blur.frag" />
   </ItemGroup>
 </Project>

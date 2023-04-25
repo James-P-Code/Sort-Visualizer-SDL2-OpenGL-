@@ -26,19 +26,20 @@ public:
 	void setRectangleToHighlight(const int);
 
 private:
-	glm::mat4 barChartModelMatrix = glm::mat4(1.0f); // the model matrix for the bar chart
-	VertexBuffer barChartVertexBuffer;
-	Shader barChartShader;
-	Shader highlightShader;
-	VertexBuffer screenSpaceVertexBuffer;
-	Shader screenSpaceShader;
 	std::vector<glm::vec2> vertexPositions;
 	std::vector<glm::u8vec3> vertexColors;
-	std::vector<GLushort> vertexIndices; // the indices used for the element buffer
+	std::vector<GLushort> vertexIndices;
+	Shader barChartShader;
+	Shader currentRectangleBorderShader;
+	Shader blurShader;
+	Shader screenSpaceShader;
+	GLint sceneTexture, blurTexture, blurModel, blurImage;
+	GLint hLoc;
+	VertexBuffer barChartVertexBuffer;
+	VertexBuffer screenSpaceVertexBuffer;
+	FrameBuffer blurBuffer;
+//	FrameBuffer blurMainSceneBuffer;
 	int rectangleToHighlight; 
-	int barChartHighlightUniformLocation, barChartProjectionUniformLocation, barChartModelUniformLocation; // the locations of uniform variables of the bar chart shader
-	int highlightProjectionUniformLocation, highlightModelUniformLocation, highlightTimeUniformLocation;
-	Uint32 time;
 
 	const GLfloat normalize(const float& numberToNormalize) const;
 };

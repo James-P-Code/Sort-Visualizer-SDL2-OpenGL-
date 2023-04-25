@@ -190,6 +190,8 @@
     <None Include="background.vert" />
     <None Include="barchart.frag" />
     <None Include="barchart.vert" />
+    <None Include="blur.frag" />
+    <None Include="blur.vert" />
     <None Include="highlight.frag" />
     <None Include="highlight.vert" />
     <None Include="screenspace.frag" />

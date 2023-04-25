@@ -66,17 +66,17 @@ BarChart::BarChart() :rectangleToHighlight(0)
         topRightColorR = 0.00f;
     }
 
-    barChartShader.loadFromFile("barchart.vert", "barchart.frag");
-    barChartHighlightUniformLocation = glGetUniformLocation(barChartShader.getProgramID(), "highlightVertexID");
-    barChartModelUniformLocation = glGetUniformLocation(barChartShader.getProgramID(), "model");
-    barChartProjectionUniformLocation = glGetUniformLocation(barChartShader.getProgramID(), "projection");
-
     barChartVertexBuffer.createPersistentMappedBuffer(vertexPositions, vertexColors, vertexIndices);
 
-    highlightShader.loadFromFile("highlight.vert", "highlight.frag");
-    highlightModelUniformLocation = glGetUniformLocation(highlightShader.getProgramID(), "model");
-    highlightProjectionUniformLocation = glGetUniformLocation(highlightShader.getProgramID(), "projection");
-    highlightTimeUniformLocation = glGetUniformLocation(highlightShader.getProgramID(), "time");
+    barChartShader.loadFromFile("barchart.vert", "barchart.frag");
+    currentRectangleBorderShader.loadFromFile("highlight.vert", "highlight.frag");
+
+    blurBuffer.createFrameBuffer();
+
+    blurShader.loadFromFile("blur.vert", "blur.frag");
+//    hLoc = glGetUniformLocation(blurShader.getProgramID(), "horizontal");
+//    blurModel = glGetUniformLocation(blurShader.getProgramID(), "model");
+ //   blurImage = glGetUniformLocation(blurShader.getProgramID(), "image");
 
     screenSpaceFrameBufferVertices.push_back(glm::vec2(-1.0f, 1.0f));
     screenSpaceFrameBufferVertices.push_back(glm::vec2(1.0f, 1.0f));
@@ -97,36 +97,64 @@ BarChart::BarChart() :rectangleToHighlight(0)
 
     screenSpaceVertexBuffer.createScreenSpaceBuffer(screenSpaceFrameBufferVertices, screenSpaceTextureCoordinates, screenSpaceVertexIndices);
     screenSpaceShader.loadFromFile("screenspace.vert", "screenspace.frag");
+  //  sceneTexture = glGetUniformLocation(screenSpaceShader.getProgramID(), "sceneTexture");
+  //  blurTexture = glGetUniformLocation(screenSpaceShader.getProgramID(), "blurTexture");
 
-    frameBuffer.createFrameBuffer();
+  //  blurMainSceneBuffer.createMultiColorBufferFrameBuffer();
+   // blurPassBuffer.createMultiBufferFrameBuffer();
+    frameBuffer.createMultiColorBufferFrameBuffer();
+  //  blurBuffer.createMultiBufferFrameBuffer();
 }
 
 void BarChart::draw()
 {
-    time = SDL_GetTicks();
+    constexpr size_t fullSceneColorBuffer = 0, highlightColorBuffer = 1;
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.getFrameBuffer());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glBindVertexArray(barChartVertexBuffer.getVertexArray());
-    barChartVertexBuffer.update(vertexPositions);
-    barChartShader.useProgram();
-    glUniformMatrix4fv(barChartModelUniformLocation, 1, GL_FALSE, glm::value_ptr(barChartModelMatrix));
-    glDrawElementsBaseVertex(GL_TRIANGLES, vertexIndices.size(), GL_UNSIGNED_SHORT, nullptr, barChartVertexBuffer.getBufferDataStartIndex());
-
-    glUniform1i(barChartHighlightUniformLocation, rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
-    glDrawElementsBaseVertex(GL_TRIANGLES, indicesPerRectangle, GL_UNSIGNED_SHORT, nullptr, rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
-
     float scaleFactor = 2.0f;
+    glm::mat4 barChartModelMatrix = glm::mat4(1.0f);
     glm::mat4 highlightModelMatrix = glm::mat4(1.0f);
     highlightModelMatrix = glm::translate(highlightModelMatrix, glm::vec3(-vertexPositions.at(rectangleToHighlight) - (rectangleWidth * 0.5f), 0.0f));
     highlightModelMatrix = glm::scale(highlightModelMatrix, glm::vec3(scaleFactor));
 
-    highlightShader.useProgram();
-    glUniformMatrix4fv(highlightModelUniformLocation, 1, GL_FALSE, glm::value_ptr(highlightModelMatrix));
-    glUniform1f(highlightTimeUniformLocation, static_cast<GLfloat>(time));
-    glDrawElementsBaseVertex(GL_TRIANGLES, indicesPerRectangle, GL_UNSIGNED_SHORT, nullptr, rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
-   
-    glBindVertexArray(0);
+    glBindVertexArray(barChartVertexBuffer.getVertexArray());
+    barChartVertexBuffer.update(vertexPositions);
+    barChartShader.useProgram();
+    barChartShader.setUniformInt("highlightVertexID", rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
+    barChartShader.setUniformMatrix4f("model", glm::value_ptr(barChartModelMatrix));
+    glDrawElementsBaseVertex(GL_TRIANGLES, vertexIndices.size(), GL_UNSIGNED_SHORT, nullptr, barChartVertexBuffer.getBufferDataStartIndex());
+
     barChartVertexBuffer.lock();
+    glBindVertexArray(0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDisable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBindVertexArray(screenSpaceVertexBuffer.getVertexArray());
+    glBindFramebuffer(GL_FRAMEBUFFER, blurBuffer.getFrameBuffer());
+    blurShader.useProgram();
+    glBindTextureUnit(0, frameBuffer.getDualColorBuffer(highlightColorBuffer));
+    glDrawElements(GL_TRIANGLES, indicesPerRectangle, GL_UNSIGNED_BYTE, nullptr);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    screenSpaceShader.useProgram();
+    glBindTextureUnit(0, frameBuffer.getDualColorBuffer(fullSceneColorBuffer));
+    glBindTextureUnit(1, blurBuffer.getColorBuffer());
+    glDrawElements(GL_TRIANGLES, indicesPerRectangle, GL_UNSIGNED_BYTE, nullptr);
+
+    glBindVertexArray(0);
+    /*
+    currentRectangleBorderShader.useProgram();
+    currentRectangleBorderShader.setUniformMatrix4f("model", glm::value_ptr(highlightModelMatrix));
+    currentRectangleBorderShader.setUniformFloat("time", static_cast<GLfloat>(SDL_GetTicks()));
+    glDrawElementsBaseVertex(GL_TRIANGLES, indicesPerRectangle, GL_UNSIGNED_SHORT, nullptr, rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
+    */
+
+  //  SDL_Delay(500);
 }
 
 const std::vector<glm::vec2>& BarChart::getVertexPositions() const

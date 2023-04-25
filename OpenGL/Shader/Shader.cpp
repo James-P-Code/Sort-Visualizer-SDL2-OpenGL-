@@ -31,6 +31,7 @@ void Shader::loadFromFile(const std::string& vertextShaderFile, const std::strin
 	glAttachShader(programID, vertexShaderID);
 	glAttachShader(programID, fragmentShaderID);
 	glLinkProgram(programID);
+	getUniformsAndLocations();
 
 	glDeleteShader(vertexShaderID);
 	glDeleteShader(fragmentShaderID);
@@ -44,6 +45,21 @@ const GLuint& Shader::getProgramID() const
 void Shader::useProgram() const
 {
 	glUseProgram(programID);
+}
+
+void Shader::setUniformInt(const std::string& uniformName, const GLint valueToSet) const
+{
+	glUniform1i(uniforms.at(uniformName), valueToSet);
+}
+
+void Shader::setUniformMatrix4f(const std::string& uniformName, const GLfloat* valueToSet) const
+{
+	glUniformMatrix4fv(uniforms.at(uniformName), 1, GL_FALSE, valueToSet);
+}
+
+void Shader::setUniformFloat(const std::string& uniformName, const GLfloat valueToSet) const
+{
+	glUniform1f(uniforms.at(uniformName), valueToSet);
 }
 
 GLuint Shader::compileShader(const GLenum& shaderType, const std::string& shaderSource) const
@@ -65,4 +81,24 @@ GLuint Shader::compileShader(const GLenum& shaderType, const std::string& shader
 	}
 
 	return shaderID;
+}
+
+void Shader::getUniformsAndLocations()
+{
+	GLint numberOfUniforms, maxUniformNameLength, currentUniformLength, currentUniformSize;
+	GLenum uniformType;
+
+	glGetProgramiv(programID, GL_ACTIVE_UNIFORMS, &numberOfUniforms);
+	glGetProgramiv(programID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformNameLength);
+
+	std::unique_ptr<char[]> uniformName = std::make_unique<char[]>(maxUniformNameLength);
+
+	if (numberOfUniforms > 0)
+	{
+		for (GLint i = 0; i < numberOfUniforms; ++i)
+		{
+			glGetActiveUniform(programID, i, maxUniformNameLength, &currentUniformLength, &currentUniformSize, &uniformType, uniformName.get());
+			uniforms[std::string(uniformName.get(), currentUniformLength)] = glGetUniformLocation(programID, uniformName.get());		
+		}
+	}
 }
