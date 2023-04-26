@@ -33,6 +33,6 @@ void BubbleSort::sort()
 
     if (sortIterator == numberOfRectangles)
     {
-        //     sortedStatus = true;
+        barChart.setSortedStatus(true);
     }
 }

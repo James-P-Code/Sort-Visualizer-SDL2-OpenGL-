@@ -1,14 +1,14 @@
 #version 460 core
-out vec4 FragColor;
+out lowp vec4 outputFrag;
 
-in vec2 TexCoords;
+in mediump vec2 textureCoordinates;
 
 layout (binding = 0) uniform sampler2D fullScene;
 layout (binding = 1) uniform sampler2D activeHighlight;
 
 void main()
 {             
-	vec3 textureColor = texture(activeHighlight, TexCoords).rgb;
-	textureColor += texture(fullScene, TexCoords).rgb;
-	FragColor = vec4(textureColor, 1.0);
+	vec3 outputTexture = texture(activeHighlight, textureCoordinates).rgb;
+	outputTexture += texture(fullScene, textureCoordinates).rgb;
+	outputFrag = vec4(outputTexture, 1.0);
 }

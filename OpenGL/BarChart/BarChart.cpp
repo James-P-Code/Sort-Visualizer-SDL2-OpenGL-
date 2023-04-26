@@ -1,6 +1,6 @@
 #include "BarChart.h"
 
-BarChart::BarChart() :rectangleToHighlight(0)
+BarChart::BarChart() :rectangleToHighlight(0), isSorted(false)
 {
     constexpr size_t topRightVertexIndexOffset = 1, bottomRightVertexIndexOffset = 2, bottomLeftVertexIndexOffset = 3;
     constexpr GLfloat windowBottomCoordinate = 600.0f;
@@ -69,15 +69,11 @@ BarChart::BarChart() :rectangleToHighlight(0)
     barChartVertexBuffer.createPersistentMappedBuffer(vertexPositions, vertexColors, vertexIndices);
 
     barChartShader.loadFromFile("barchart.vert", "barchart.frag");
-    currentRectangleBorderShader.loadFromFile("highlight.vert", "highlight.frag");
-
-    blurBuffer.createFrameBuffer();
-
     blurShader.loadFromFile("blur.vert", "blur.frag");
-//    hLoc = glGetUniformLocation(blurShader.getProgramID(), "horizontal");
-//    blurModel = glGetUniformLocation(blurShader.getProgramID(), "model");
- //   blurImage = glGetUniformLocation(blurShader.getProgramID(), "image");
 
+    mainFrameBuffer.createMultiColorBufferFrameBuffer();
+
+    // TODO: move all this screenspace stuff out of here
     screenSpaceFrameBufferVertices.push_back(glm::vec2(-1.0f, 1.0f));
     screenSpaceFrameBufferVertices.push_back(glm::vec2(1.0f, 1.0f));
     screenSpaceFrameBufferVertices.push_back(glm::vec2(1.0f, -1.0f));
@@ -97,27 +93,21 @@ BarChart::BarChart() :rectangleToHighlight(0)
 
     screenSpaceVertexBuffer.createScreenSpaceBuffer(screenSpaceFrameBufferVertices, screenSpaceTextureCoordinates, screenSpaceVertexIndices);
     screenSpaceShader.loadFromFile("screenspace.vert", "screenspace.frag");
-  //  sceneTexture = glGetUniformLocation(screenSpaceShader.getProgramID(), "sceneTexture");
-  //  blurTexture = glGetUniformLocation(screenSpaceShader.getProgramID(), "blurTexture");
-
-  //  blurMainSceneBuffer.createMultiColorBufferFrameBuffer();
-   // blurPassBuffer.createMultiBufferFrameBuffer();
-    frameBuffer.createMultiColorBufferFrameBuffer();
-  //  blurBuffer.createMultiBufferFrameBuffer();
 }
 
 void BarChart::draw()
 {
     constexpr size_t fullSceneColorBuffer = 0, highlightColorBuffer = 1;
-    glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.getFrameBuffer());
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    float scaleFactor = 2.0f;
+    //    float scaleFactor = 2.0f;
     glm::mat4 barChartModelMatrix = glm::mat4(1.0f);
-    glm::mat4 highlightModelMatrix = glm::mat4(1.0f);
-    highlightModelMatrix = glm::translate(highlightModelMatrix, glm::vec3(-vertexPositions.at(rectangleToHighlight) - (rectangleWidth * 0.5f), 0.0f));
-    highlightModelMatrix = glm::scale(highlightModelMatrix, glm::vec3(scaleFactor));
+    //    glm::mat4 highlightModelMatrix = glm::mat4(1.0f);
+    //    highlightModelMatrix = glm::translate(highlightModelMatrix, glm::vec3(-vertexPositions.at(rectangleToHighlight) - (rectangleWidth * 0.5f), 0.0f));
+    //    highlightModelMatrix = glm::scale(highlightModelMatrix, glm::vec3(scaleFactor));
 
+    glBindFramebuffer(GL_FRAMEBUFFER, mainFrameBuffer.getFrameBuffer());
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // draw the full scene to the framebuffer.  this framebuffer has 2 color buffers, we draw the whole scene to one and just the highlighted rectangle to the other
     glBindVertexArray(barChartVertexBuffer.getVertexArray());
     barChartVertexBuffer.update(vertexPositions);
     barChartShader.useProgram();
@@ -128,25 +118,26 @@ void BarChart::draw()
     barChartVertexBuffer.lock();
     glBindVertexArray(0);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glDisable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT);
-
+    // use the highlighted rectangle color buffer from the draw we just did to add a glow/blur effect to just the highlighted rectangle
     glBindVertexArray(screenSpaceVertexBuffer.getVertexArray());
-    glBindFramebuffer(GL_FRAMEBUFFER, blurBuffer.getFrameBuffer());
     blurShader.useProgram();
-    glBindTextureUnit(0, frameBuffer.getDualColorBuffer(highlightColorBuffer));
+    glBindTextureUnit(0, mainFrameBuffer.getDualColorBuffer(highlightColorBuffer));
     glDrawElements(GL_TRIANGLES, indicesPerRectangle, GL_UNSIGNED_BYTE, nullptr);
 
+    // and now we draw the full scene with the glowing, highlighted rectangle
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT);
-
     screenSpaceShader.useProgram();
-    glBindTextureUnit(0, frameBuffer.getDualColorBuffer(fullSceneColorBuffer));
-    glBindTextureUnit(1, blurBuffer.getColorBuffer());
+    glBindTextureUnit(0, mainFrameBuffer.getDualColorBuffer(fullSceneColorBuffer));
+    glBindTextureUnit(1, mainFrameBuffer.getDualColorBuffer(highlightColorBuffer));
     glDrawElements(GL_TRIANGLES, indicesPerRectangle, GL_UNSIGNED_BYTE, nullptr);
 
     glBindVertexArray(0);
+
+    if (isSorted && rectangleToHighlight < numberOfRectangles * verticesPerRectangle)
+    {
+        rectangleToHighlight += verticesPerRectangle;
+    }
     /*
     currentRectangleBorderShader.useProgram();
     currentRectangleBorderShader.setUniformMatrix4f("model", glm::value_ptr(highlightModelMatrix));
@@ -201,4 +192,9 @@ void BarChart::updateRectangle(const size_t indexOfUpdate, const glm::vec2& newV
 void BarChart::setRectangleToHighlight(const int rectangleToHighlight)
 {
     this->rectangleToHighlight = rectangleToHighlight;
+}
+
+void BarChart::setSortedStatus(const bool sortedStatus)
+{
+    isSorted = sortedStatus;
 }

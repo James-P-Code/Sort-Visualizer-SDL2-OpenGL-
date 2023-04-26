@@ -69,22 +69,22 @@ void VertexBuffer::createPersistentMappedBuffer(const std::vector<glm::vec2>& ve
 	constexpr GLuint positionLayoutIndex = 0, colorLayoutIndex = 1;
 	constexpr GLuint uniformBindingPoint = 0;
 	constexpr int tripleBuffer = 3;
-	constexpr GLsizeiptr bufferSize = numberOfRectangles * verticesPerRectangle * sizeof(glm::vec2) * tripleBuffer;
+	constexpr GLsizeiptr bufferSize = (numberOfRectangles * verticesPerRectangle * sizeof(glm::vec2)) * tripleBuffer;
 	const glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight), 0.0f, -1.0f, 1.0f);
-
-	// create vertex buffer for the positions of the vertices
-	glCreateBuffers(1, &positionsVBO);
-	glNamedBufferStorage(positionsVBO, bufferSize, vertexPositions.data(), GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-	// map the buffer
-	vertexBufferData = (glm::vec2*)glMapNamedBufferRange(positionsVBO, 0, bufferSize, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-
 	bufferRanges[firstBuffer].startIndex = 0;
 	bufferRanges[secondBuffer].startIndex = numberOfRectangles * verticesPerRectangle;
 	bufferRanges[thirdBuffer].startIndex = numberOfRectangles * verticesPerRectangle * 2;
 
-	// fill up the buffer "ranges" with the position data (note the first range was already filled during the glNamedBufferStorage call above)
+	// create vertex buffer for the positions of the vertices
+	glCreateBuffers(1, &positionsVBO);
+	glNamedBufferStorage(positionsVBO, bufferSize, nullptr, GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+	// map the buffer
+	vertexBufferData = (glm::vec2*)glMapNamedBufferRange(positionsVBO, 0, bufferSize, GL_MAP_WRITE_BIT | GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+
+	// fill up the buffer "ranges" with the position data
 	for (size_t i = 0; i < vertexPositions.size(); ++i)
 	{
+		vertexBufferData[bufferRanges[firstBuffer].startIndex + i] = vertexPositions.at(i);
 		vertexBufferData[bufferRanges[secondBuffer].startIndex + i] = vertexPositions.at(i);
 		vertexBufferData[bufferRanges[thirdBuffer].startIndex + i] = vertexPositions.at(i);
 	}

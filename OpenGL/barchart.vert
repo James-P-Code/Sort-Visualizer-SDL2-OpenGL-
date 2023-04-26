@@ -12,21 +12,11 @@ const int maxVertexOffset = 4;
 uniform int highlightVertexID;
 uniform mat4 model;
 
-out vec3 fragmentColor;
+out lowp vec3 fragmentColor;
 
 void main()
 {
-    float zValue = 0.0f;
+    highlightVertexID <= gl_VertexID && highlightVertexID + maxVertexOffset > gl_VertexID ? fragmentColor = vec3(0.08, 0.96, 0.19) : fragmentColor = vertexColor;
 
-    if (highlightVertexID <= gl_VertexID && highlightVertexID + maxVertexOffset > gl_VertexID)
-    {
-       fragmentColor = vec3(0.08, 0.96, 0.19);
-       zValue = 0.2f;
-    }
-    else
-    {
-        fragmentColor = vertexColor;
-    }
-
-    gl_Position = projection * model * vec4(vertexPosition, zValue, 1.0);
+    gl_Position = projection * model * vec4(vertexPosition, 0.0, 1.0);
 }
