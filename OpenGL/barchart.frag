@@ -1,7 +1,6 @@
 #version 460 core
 layout (location = 0) out lowp vec4 fullScene;
 layout (location = 1) out lowp vec4 highlightOnly;
-// layout (location = 2) out lowp vec4 blur;
 
 in vec3 fragmentColor;
 

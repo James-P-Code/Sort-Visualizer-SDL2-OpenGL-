@@ -1,5 +1,5 @@
 #version 460 core
-layout (location = 1) out lowp vec4 fragmentColor;
+layout (location = 1) out lowp vec4 highlightOnly;
   
 in vec2 textureCoordinates;
 
@@ -14,7 +14,7 @@ void main()
 
     for(int i = 1; i < 5; ++i)
     {
-        result += texture(image, textureCoordinates + vec2(tex_offset.x * i * 1.75, 0.0)).rgb * weight[i] * 10;
+        result += texture(image, textureCoordinates + vec2(tex_offset.x * i * 1.75, 0.0)).rgb * weight[i]; // * 10 here gives stronger glow but causes artifacts
         result += texture(image, textureCoordinates - vec2(tex_offset.x * i * 1.75, 0.0)).rgb * weight[i] * 10;
     }
         
@@ -24,5 +24,5 @@ void main()
         result += texture(image, textureCoordinates - vec2(0.0, tex_offset.y * i)).rgb * weight[i];
     } 
 
-    fragmentColor = vec4(result, 1.0);
+    highlightOnly = vec4(result, 1.0);
 }

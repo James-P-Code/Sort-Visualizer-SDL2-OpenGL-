@@ -125,8 +125,7 @@ void BarChart::draw()
     glDrawElements(GL_TRIANGLES, indicesPerRectangle, GL_UNSIGNED_BYTE, nullptr);
 
     // and now we draw the full scene with the glowing, highlighted rectangle
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     screenSpaceShader.useProgram();
     glBindTextureUnit(0, mainFrameBuffer.getDualColorBuffer(fullSceneColorBuffer));
     glBindTextureUnit(1, mainFrameBuffer.getDualColorBuffer(highlightColorBuffer));
