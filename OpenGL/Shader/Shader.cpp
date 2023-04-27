@@ -49,17 +49,17 @@ void Shader::useProgram() const
 
 void Shader::setUniformInt(const std::string& uniformName, const GLint valueToSet) const
 {
-	glUniform1i(uniforms.at(uniformName), valueToSet);
+	glProgramUniform1i(programID, uniforms.at(uniformName), valueToSet);
 }
 
 void Shader::setUniformMatrix4f(const std::string& uniformName, const GLfloat* valueToSet) const
 {
-	glUniformMatrix4fv(uniforms.at(uniformName), 1, GL_FALSE, valueToSet);
+	glProgramUniformMatrix4fv(programID, uniforms.at(uniformName), 1, GL_FALSE, valueToSet);
 }
 
 void Shader::setUniformFloat(const std::string& uniformName, const GLfloat valueToSet) const
 {
-	glUniform1f(uniforms.at(uniformName), valueToSet);
+	glProgramUniform1f(programID, uniforms.at(uniformName), valueToSet);
 }
 
 GLuint Shader::compileShader(const GLenum& shaderType, const std::string& shaderSource) const

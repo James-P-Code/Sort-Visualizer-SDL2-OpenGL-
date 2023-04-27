@@ -21,6 +21,7 @@ RenderWindow::RenderWindow()
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CW);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glDisable(GL_DEPTH_TEST);
 //	glEnable(GL_DEPTH_TEST);
 //	glDepthFunc(GL_LESS);
 }

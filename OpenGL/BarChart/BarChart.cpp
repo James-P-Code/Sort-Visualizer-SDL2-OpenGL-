@@ -3,7 +3,6 @@
 BarChart::BarChart() :rectangleToHighlight(0), isSorted(false)
 {
     constexpr size_t topRightVertexIndexOffset = 1, bottomRightVertexIndexOffset = 2, bottomLeftVertexIndexOffset = 3;
-    constexpr GLfloat windowBottomCoordinate = 600.0f;
     constexpr float byteMultiplier = 255.0f;
     constexpr int bufferSize = 3;
     GLfloat xPosition = 0.0f;
@@ -12,9 +11,6 @@ BarChart::BarChart() :rectangleToHighlight(0), isSorted(false)
     GLfloat bottomRightColorR = 0.09f, bottomRightColorG = 0.22f, bottomRightColorB = 0.44f;
     GLfloat bottomLeftColorR = 0.01f, bottomLeftColorG = 0.16f, bottomLeftColorB = 0.42f;
     int vertexIndex = 0;
-    std::vector<glm::vec2> screenSpaceFrameBufferVertices;
-    std::vector<GLubyte> screenSpaceVertexIndices;
-    std::vector<glm::vec2> screenSpaceTextureCoordinates;
     std::array<GLfloat, numberOfRectangles> height;
     std::mt19937 randomSeed(std::random_device{}());
 
@@ -67,39 +63,22 @@ BarChart::BarChart() :rectangleToHighlight(0), isSorted(false)
     }
 
     barChartVertexBuffer.createPersistentMappedBuffer(vertexPositions, vertexColors, vertexIndices);
+    screenSpaceVertexBuffer.createScreenSpaceBuffer();
 
     barChartShader.loadFromFile("barchart.vert", "barchart.frag");
+    barChartShader.setUniformMatrix4f("model", glm::value_ptr(glm::mat4(1.0f))); // we never modify this model matrix so we can just set it and forget it
+
     blurShader.loadFromFile("blur.vert", "blur.frag");
+    screenSpaceShader.loadFromFile("screenspace.vert", "screenspace.frag");
 
     mainFrameBuffer.createMultiColorBufferFrameBuffer();
-
-    // TODO: move all this screenspace stuff out of here
-    screenSpaceFrameBufferVertices.push_back(glm::vec2(-1.0f, 1.0f));
-    screenSpaceFrameBufferVertices.push_back(glm::vec2(1.0f, 1.0f));
-    screenSpaceFrameBufferVertices.push_back(glm::vec2(1.0f, -1.0f));
-    screenSpaceFrameBufferVertices.push_back(glm::vec2(-1.0f, -1.0f));
-
-    screenSpaceVertexIndices.push_back(0);
-    screenSpaceVertexIndices.push_back(1);
-    screenSpaceVertexIndices.push_back(2);
-    screenSpaceVertexIndices.push_back(2);
-    screenSpaceVertexIndices.push_back(3);
-    screenSpaceVertexIndices.push_back(0);
-
-    screenSpaceTextureCoordinates.push_back(glm::vec2(0.0f, 1.0f));
-    screenSpaceTextureCoordinates.push_back(glm::vec2(1.0f, 1.0f));
-    screenSpaceTextureCoordinates.push_back(glm::vec2(1.0f, 0.0f));
-    screenSpaceTextureCoordinates.push_back(glm::vec2(0.0f, 0.0f));
-
-    screenSpaceVertexBuffer.createScreenSpaceBuffer(screenSpaceFrameBufferVertices, screenSpaceTextureCoordinates, screenSpaceVertexIndices);
-    screenSpaceShader.loadFromFile("screenspace.vert", "screenspace.frag");
 }
 
 void BarChart::draw()
 {
-    constexpr size_t fullSceneColorBuffer = 0, highlightColorBuffer = 1;
+    static constexpr size_t fullSceneColorBuffer = 0, highlightColorBuffer = 1;
     //    float scaleFactor = 2.0f;
-    glm::mat4 barChartModelMatrix = glm::mat4(1.0f);
+    //    glm::mat4 barChartModelMatrix = glm::mat4(1.0f);
     //    glm::mat4 highlightModelMatrix = glm::mat4(1.0f);
     //    highlightModelMatrix = glm::translate(highlightModelMatrix, glm::vec3(-vertexPositions.at(rectangleToHighlight) - (rectangleWidth * 0.5f), 0.0f));
     //    highlightModelMatrix = glm::scale(highlightModelMatrix, glm::vec3(scaleFactor));
@@ -112,7 +91,6 @@ void BarChart::draw()
     barChartVertexBuffer.update(vertexPositions);
     barChartShader.useProgram();
     barChartShader.setUniformInt("highlightVertexID", rectangleToHighlight + barChartVertexBuffer.getBufferDataStartIndex());
-    barChartShader.setUniformMatrix4f("model", glm::value_ptr(barChartModelMatrix));
     glDrawElementsBaseVertex(GL_TRIANGLES, vertexIndices.size(), GL_UNSIGNED_SHORT, nullptr, barChartVertexBuffer.getBufferDataStartIndex());
 
     barChartVertexBuffer.lock();
@@ -126,6 +104,7 @@ void BarChart::draw()
 
     // and now we draw the full scene with the glowing, highlighted rectangle
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
     screenSpaceShader.useProgram();
     glBindTextureUnit(0, mainFrameBuffer.getDualColorBuffer(fullSceneColorBuffer));
     glBindTextureUnit(1, mainFrameBuffer.getDualColorBuffer(highlightColorBuffer));

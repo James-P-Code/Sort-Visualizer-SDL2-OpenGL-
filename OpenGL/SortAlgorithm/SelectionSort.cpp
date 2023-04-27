@@ -21,6 +21,7 @@ void SelectionSort::sort()
 				indexOfMinimum = currentVertex;
 			}
 			currentVertex += verticesPerRectangle;
+			barChart.setRectangleToHighlight(currentVertex);
 		}
 		else
 		{
@@ -33,7 +34,6 @@ void SelectionSort::sort()
 			currentVertex = 0;
 			++sortIterator;
 		}
-		barChart.setRectangleToHighlight(currentVertex);
 	}
 
 	if (indexOfMinimum > 0 && sortIterator == numberOfRectangles - 1)

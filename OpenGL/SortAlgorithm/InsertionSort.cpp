@@ -43,6 +43,6 @@ void InsertionSort::sort()
 
 	if (sortIterator == numberOfRectangles)
 	{
-	//	sortedStatus = true;
+		barChart.setSortedStatus(true);
 	}
 }

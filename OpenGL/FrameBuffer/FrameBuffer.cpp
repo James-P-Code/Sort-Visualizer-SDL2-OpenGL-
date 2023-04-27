@@ -14,7 +14,7 @@ void FrameBuffer::createFrameBuffer()
 	glCreateTextures(GL_TEXTURE_2D, 1, &colorBuffer);
 	glTextureParameteri(colorBuffer, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(colorBuffer, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTextureStorage2D(colorBuffer, 1, GL_RGB8, windowWidth, windowHeight);
+	glTextureStorage2D(colorBuffer, 1, GL_RGBA8, windowWidth, windowHeight);
 	glNamedFramebufferTexture(frameBuffer, GL_COLOR_ATTACHMENT0, colorBuffer, 0);
 }
 
@@ -32,7 +32,7 @@ void FrameBuffer::createMultiColorBufferFrameBuffer()
 		glTextureParameteri(dualColorBuffers[i], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTextureParameteri(dualColorBuffers[i], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameteri(dualColorBuffers[i], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTextureStorage2D(dualColorBuffers[i], 1, GL_RGB8, windowWidth, windowHeight);
+		glTextureStorage2D(dualColorBuffers[i], 1, GL_RGBA8, windowWidth, windowHeight);
 		glNamedFramebufferTexture(frameBuffer, GL_COLOR_ATTACHMENT0 + i, dualColorBuffers[i], 0);
 	}
 

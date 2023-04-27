@@ -71,9 +71,9 @@ void VertexBuffer::createPersistentMappedBuffer(const std::vector<glm::vec2>& ve
 	constexpr int tripleBuffer = 3;
 	constexpr GLsizeiptr bufferSize = (numberOfRectangles * verticesPerRectangle * sizeof(glm::vec2)) * tripleBuffer;
 	const glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(windowWidth), static_cast<float>(windowHeight), 0.0f, -1.0f, 1.0f);
-	bufferRanges[firstBuffer].startIndex = 0;
-	bufferRanges[secondBuffer].startIndex = numberOfRectangles * verticesPerRectangle;
-	bufferRanges[thirdBuffer].startIndex = numberOfRectangles * verticesPerRectangle * 2;
+	bufferRanges.at(firstBuffer).startIndex = 0;
+	bufferRanges.at(secondBuffer).startIndex = numberOfRectangles * verticesPerRectangle;
+	bufferRanges.at(thirdBuffer).startIndex = numberOfRectangles * verticesPerRectangle * 2;
 
 	// create vertex buffer for the positions of the vertices
 	glCreateBuffers(1, &positionsVBO);
@@ -84,9 +84,9 @@ void VertexBuffer::createPersistentMappedBuffer(const std::vector<glm::vec2>& ve
 	// fill up the buffer "ranges" with the position data
 	for (size_t i = 0; i < vertexPositions.size(); ++i)
 	{
-		vertexBufferData[bufferRanges[firstBuffer].startIndex + i] = vertexPositions.at(i);
-		vertexBufferData[bufferRanges[secondBuffer].startIndex + i] = vertexPositions.at(i);
-		vertexBufferData[bufferRanges[thirdBuffer].startIndex + i] = vertexPositions.at(i);
+		vertexBufferData[bufferRanges.at(firstBuffer).startIndex + i] = vertexPositions.at(i);
+		vertexBufferData[bufferRanges.at(secondBuffer).startIndex + i] = vertexPositions.at(i);
+		vertexBufferData[bufferRanges.at(thirdBuffer).startIndex + i] = vertexPositions.at(i);
 	}
 
 	glCreateBuffers(1, &colorsVBO);
@@ -114,8 +114,13 @@ void VertexBuffer::createPersistentMappedBuffer(const std::vector<glm::vec2>& ve
 	glVertexArrayAttribBinding(vertexArray, colorLayoutIndex, colorBindingIndex);
 }
 
-void VertexBuffer::createScreenSpaceBuffer(const std::vector<glm::vec2>& vertexPositions, const std::vector<glm::vec2>& textureCoordinates, const std::vector<GLubyte>& vertexIndices)
+void VertexBuffer::createScreenSpaceBuffer()
 {
+	constexpr GLubyte topLeftVertex = 0, topRightVertex = 1, bottomRightVertex = 2, bottomLeftVertex = 3;
+	constexpr std::array<glm::vec2, verticesPerRectangle> vertexPositions = { glm::vec2(-1.f, 1.f), glm::vec2(1.f), glm::vec2(1.f, -1.f), glm::vec2(-1.f) };
+	constexpr std::array<GLubyte, indicesPerRectangle> vertexIndices = { topLeftVertex, topRightVertex, bottomRightVertex, bottomRightVertex, bottomLeftVertex, topLeftVertex };
+	constexpr std::array<glm::vec2, verticesPerRectangle> textureCoordinates = { glm::vec2(0.f, 1.f), glm::vec2(1.f), glm::vec2(1.f, 0.f), glm::vec2(0.f) };
+
 	glCreateBuffers(1, &positionsVBO);
 	glNamedBufferStorage(positionsVBO, vertexPositions.size() * sizeof(glm::vec2), vertexPositions.data(), GL_MAP_READ_BIT);
 
@@ -147,7 +152,7 @@ const GLuint& VertexBuffer::getVertexArray() const
 
 const size_t VertexBuffer::getBufferDataStartIndex() const
 {
-	return bufferRanges[syncRangeIndex].startIndex;
+	return bufferRanges.at(syncRangeIndex).startIndex;
 }
 
 void VertexBuffer::update(const std::vector<glm::vec2>& rectangleVertices)
@@ -156,14 +161,14 @@ void VertexBuffer::update(const std::vector<glm::vec2>& rectangleVertices)
 
 	for (size_t i = 0; i != rectangleVertices.size(); ++i)
 	{
-		vertexBufferData[bufferRanges[syncRangeIndex].startIndex + i] = rectangleVertices.at(i);
+		vertexBufferData[bufferRanges.at(syncRangeIndex).startIndex + i] = rectangleVertices.at(i);
 	}
 }
 
 void VertexBuffer::lock()
 {
-	glDeleteSync(bufferRanges[syncRangeIndex].sync);
-	bufferRanges[syncRangeIndex].sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	glDeleteSync(bufferRanges.at(syncRangeIndex).sync);
+	bufferRanges.at(syncRangeIndex).sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 	syncRangeIndex = ++syncRangeIndex % persistentBufferSize;
 }
 
@@ -172,6 +177,6 @@ void VertexBuffer::wait()
 	GLenum waitReturn = glClientWaitSync(bufferRanges[syncRangeIndex].sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
 	while (waitReturn != GL_ALREADY_SIGNALED && waitReturn != GL_CONDITION_SATISFIED)
 	{
-		waitReturn = glClientWaitSync(bufferRanges[syncRangeIndex].sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
+		waitReturn = glClientWaitSync(bufferRanges.at(syncRangeIndex).sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
 	}
 }
